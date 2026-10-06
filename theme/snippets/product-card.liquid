@@ -1,0 +1,58 @@
+{% doc %}
+  Renders a native product card or an aggregated canonical scent card.
+  @param {product} product - Purchase destination.
+  @param {variant} [variant] - Exact matching variant.
+  @param {metaobject} [scent] - Canonical scent.
+  @param {number} [card_price] - Native price in minor units.
+  @param {string} [formats] - Available format labels.
+  @param {boolean} [scent_card] - Render scent-first content.
+{% enddoc %}
+{% liquid
+  assign card_variant = variant | default: product.selected_or_first_available_variant
+  assign card_scent = scent | default: card_variant.metafields.custom.scent.value | default: product.metafields.custom.scent.value
+  assign card_name = product.title
+  assign card_url = product.url
+  assign image = product.featured_image
+  assign available = product.available
+  assign price = product.price_min
+  assign from_price = false
+  if product.price_min != product.price_max
+    assign from_price = true
+  endif
+  if scent_card
+    assign card_name = card_scent.name.value | default: product.title
+    assign card_url = card_variant.url
+    assign image = card_variant.featured_media.preview_image | default: card_scent.hero_image.value | default: product.featured_image
+    assign available = card_variant.available
+    assign price = card_price | default: card_variant.price
+    assign from_price = true
+  endif
+  assign image_alt = image.alt | default: card_name
+  assign notes = ''
+  if card_scent != blank
+    unless card_scent.system.handle == 'oudie-bella'
+      assign empty_notes = '' | split: ','
+      assign top = card_scent.top_notes.value | default: empty_notes
+      assign heart = card_scent.heart_notes.value | default: empty_notes
+      assign base = card_scent.base_notes.value | default: empty_notes
+      assign notes = top | concat: heart | concat: base | uniq | slice: 0, 4 | join: ' · '
+    endunless
+  else
+    assign notes = card_variant.metafields.custom.scent_notes.value | strip_html | truncate: 90
+  endif
+%}
+<article class="product-card{% if scent_card %} product-card--scent{% endif %}">
+  <a class="product-card-link" href="{{ card_url }}">
+    <div class="product-card-media">
+      {% if image != blank %}{{ image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '240,360,480,700,900', sizes: '(min-width: 990px) 25vw, (min-width: 760px) 33vw, 50vw', alt: image_alt }}{% else %}<div class="card-placeholder" aria-hidden="true"><span>OUDIE</span></div>{% endif %}
+      {% unless available %}<span class="badge">{{ 'cards.sold_out' | t }}</span>{% endunless %}
+    </div>
+    <div class="product-card-info">
+      <h3 class="product-card-title">{{ card_name | escape }}</h3>
+      {% if notes != blank %}<p class="product-card-notes">{{ notes | escape }}</p>{% endif %}
+      <p class="product-card-price">{% if from_price %}{{ 'cards.from' | t }} {% endif %}{{ price | money }}</p>
+      {% if formats != blank %}<p class="product-card-formats">{{ formats | escape }}</p>{% endif %}
+      {% if scent_card %}<span class="product-card-action">{{ 'cards.discover' | t }} <span aria-hidden="true">↗</span></span>{% endif %}
+    </div>
+  </a>
+</article>

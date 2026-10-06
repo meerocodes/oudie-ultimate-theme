@@ -1,0 +1,32 @@
+<section class="page-width page-hero"><div class="eyebrow">OUDIE experiences</div><h1 class="section-title">The Oud Bar, brought to you.</h1><p class="section-copy">A guided fragrance experience for weddings, corporate events and private gatherings in Toronto, the GTA and beyond.</p></section>
+<section class="page-width section-tight">
+  <div class="experience-grid">
+    <div class="experience-card"><div class="eyebrow">Weddings</div><h2 class="serif">A personal favour guests actually make.</h2><p>Guests explore scents, build a fragrance and leave with a take-home bottle.</p></div>
+    <div class="experience-card"><div class="eyebrow">Corporate</div><h2 class="serif">An activation people participate in.</h2><p>Guided scent discovery for teams, launches, hospitality and branded moments.</p></div>
+    <div class="experience-card"><div class="eyebrow">Private</div><h2 class="serif">A workshop with a social side.</h2><p>Ideal for intimate gatherings, celebrations and hosted scent-building sessions.</p></div>
+  </div>
+</section>
+<section class="page-width section">
+  <div class="split-copy" style="border:1px solid var(--line)">
+    <div class="eyebrow">Tell us about your event</div><h2 class="section-title" style="font-size:clamp(2.3rem,5vw,4.4rem)">Build the quote from the right details.</h2><p class="section-copy">Pricing is prepared after we understand the event. Complete the inquiry and the OUDIE team will follow up.</p>
+    {% form 'contact', id: 'OudBarInquiry' %}
+      <input type="hidden" name="contact[topic]" value="Oud Bar inquiry">
+      <div class="form-grid">
+        <div class="field"><label>Name</label><input required name="contact[name]"></div>
+        <div class="field"><label>Email</label><input required type="email" name="contact[email]"></div>
+        <div class="field"><label>Phone</label><input name="contact[phone]"></div>
+        <div class="field"><label>Event type</label><select class="select" name="contact[event_type]"><option>Wedding</option><option>Corporate</option><option>Private event</option><option>Other</option></select></div>
+        <div class="field"><label>Date</label><input required type="date" name="contact[event_date]"></div>
+        <div class="field"><label>Time</label><input required type="time" name="contact[event_time]"></div>
+        <div class="field"><label>City / location</label><input required name="contact[event_location]"></div>
+        <div class="field"><label>Venue</label><input required name="contact[venue]"></div>
+        <div class="field"><label>Expected guests</label><input required type="number" min="1" name="contact[guests]"></div>
+        <div class="field"><label>Bottles needed</label><input required type="number" min="1" name="contact[bottles]"></div>
+        <div class="field"><label>Number of scents wanted</label><input required type="number" min="1" name="contact[scents]"></div>
+        <div class="field full"><label>Anything else?</label><textarea class="textarea" name="contact[body]"></textarea></div>
+      </div>
+      <button class="btn" style="margin-top:16px" type="submit">Send inquiry</button>
+    {% endform %}
+  </div>
+</section>
+{% schema %}{"name":"Experiences","settings":[]}{% endschema %}

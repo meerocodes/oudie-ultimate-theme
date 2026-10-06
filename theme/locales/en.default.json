@@ -1,0 +1,49 @@
+{
+  "general": {
+    "cart": "Bag",
+    "menu": "Menu",
+    "search": "Search",
+    "skip": "Skip to content"
+  },
+  "navigation": {
+    "primary": "Primary navigation",
+    "shop": "Shop",
+    "scents": "Explore Scents",
+    "samples": "Samples",
+    "experiences": "Experiences",
+    "guide": "Oud Guide",
+    "story": "Our Story",
+    "discover": "Discover OUDIE",
+    "close": "Close menu",
+    "contact": "Contact OUDIE",
+    "search_label": "Search OUDIE",
+    "search_placeholder": "Search fragrances and more",
+    "view_all": "Explore {{ title }}"
+  },
+  "cards": {
+    "from": "From",
+    "sold_out": "Sold out",
+    "extrait": "Extrait",
+    "oil": "Oil",
+    "mist": "Mist",
+    "car": "Car",
+    "discover": "Discover scent",
+    "explore_all": "Explore all scents",
+    "configure": "Select canonical scents and their fragrance products in this section\u2019s settings.",
+    "no_products": "No fragrance products found."
+  },
+  "homepage": {
+    "discover": "Find Your OUDIE",
+    "discovery_link": "Explore scents",
+    "sample_link": "Explore samples",
+    "experience_link": "Explore the Oud Bar",
+    "story_link": "Our Story"
+  },
+  "commerce": {
+    "shipping_reached": "Free-shipping threshold reached.",
+    "shipping_remaining": "{{ amount }} away from the free-shipping threshold.",
+    "shipping_eligibility": "For qualifying Canada & USA orders. Eligibility is confirmed at checkout.",
+    "shipping_policy": "Free shipping on qualifying Canada & USA orders of CAD ${{ threshold }}+. Final delivery options and eligibility are shown at checkout.",
+    "reviews": "Customer reviews"
+  }
+}

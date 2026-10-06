@@ -1,0 +1,23 @@
+<header class="site-header" data-site-header>
+  <div class="page-width header-inner">
+    <details class="mobile-menu" data-menu>
+      <summary class="menu-toggle" aria-controls="MenuPanel-{{ section.id }}"><span class="menu-lines" aria-hidden="true"></span>{{ 'general.menu' | t }}</summary>
+      <div class="drawer-overlay" data-menu-overlay></div>
+      <div class="mobile-drawer" id="MenuPanel-{{ section.id }}" aria-labelledby="MenuTitle-{{ section.id }}" data-menu-panel>
+        <div class="drawer-head"><span class="eyebrow" id="MenuTitle-{{ section.id }}">{{ 'navigation.discover' | t }}</span><button type="button" class="drawer-close" data-menu-close aria-label="{{ 'navigation.close' | t }}">×</button></div>
+        <nav aria-label="{{ 'navigation.primary' | t }}"><ul class="drawer-nav">{% render 'header-links', menu: section.settings.menu %}</ul></nav>
+        <form class="drawer-search" action="{{ routes.search_url }}" method="get" role="search">
+          <label for="MenuSearch-{{ section.id }}">{{ 'navigation.search_label' | t }}</label>
+          <div class="search-form"><input id="MenuSearch-{{ section.id }}" type="search" name="q" placeholder="{{ 'navigation.search_placeholder' | t }}"><button class="btn" type="submit">{{ 'general.search' | t }}</button></div>
+        </form>
+        {% if pages['contact'] != blank %}<a class="text-link drawer-contact" href="{{ pages['contact'].url }}">{{ 'navigation.contact' | t }}</a>{% endif %}
+      </div>
+    </details>
+    <a class="wordmark" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">OUDIE</a>
+    <nav class="desktop-nav" aria-label="{{ 'navigation.primary' | t }}"><ul>{% render 'header-links', menu: section.settings.menu %}</ul></nav>
+    <div class="header-actions"><a class="header-search" href="{{ routes.search_url }}">{{ 'general.search' | t }}</a><a class="cart-link" href="{{ routes.cart_url }}">{{ 'general.cart' | t }}{% if cart.item_count > 0 %}<span class="bag-count">({{ cart.item_count }})</span>{% endif %}</a></div>
+  </div>
+</header>
+{% schema %}
+{"name":"Header","settings":[{"type":"link_list","id":"menu","label":"Primary navigation","info":"Leave empty to use the verified OUDIE destinations."}]}
+{% endschema %}

@@ -1,0 +1,28 @@
+{% doc %}
+  Renders configured navigation or verified OUDIE route defaults.
+  @param {linklist} [menu] - Merchant navigation menu.
+{% enddoc %}
+{% if menu != blank %}
+  {% for link in menu.links %}
+    <li>
+      {% if link.links != blank %}
+        <details class="nav-group"><summary>{{ link.title | escape }}</summary><ul>
+          <li><a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ 'navigation.view_all' | t: title: link.title }}</a></li>
+          {% for child in link.links %}
+            <li><a href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>{{ child.title | escape }}</a>
+              {% if child.links != blank %}<ul>{% for grandchild in child.links %}<li><a href="{{ grandchild.url }}"{% if grandchild.current %} aria-current="page"{% endif %}>{{ grandchild.title | escape }}</a></li>{% endfor %}</ul>{% endif %}
+            </li>
+          {% endfor %}
+        </ul></details>
+      {% else %}<a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>{% endif %}
+    </li>
+  {% endfor %}
+{% else %}
+  {% assign shop_collection = collections['all-oudie'] %}
+  <li><a href="{{ shop_collection.url | default: routes.all_products_collection_url }}">{{ 'navigation.shop' | t }}</a></li>
+  {% if pages['our-scents'] != blank %}<li><a href="{{ pages['our-scents'].url }}">{{ 'navigation.scents' | t }}</a></li>{% endif %}
+  {% if all_products['sample-pack-1-of-each-scent'] != blank %}<li><a href="{{ all_products['sample-pack-1-of-each-scent'].url }}">{{ 'navigation.samples' | t }}</a></li>{% endif %}
+  {% if pages['oudie-experiences'] != blank %}<li><a href="{{ pages['oudie-experiences'].url }}">{{ 'navigation.experiences' | t }}</a></li>{% endif %}
+  {% if blogs['perfume-oud-oil-vs-extrait-de-parfum'] != blank %}<li><a href="{{ blogs['perfume-oud-oil-vs-extrait-de-parfum'].url }}">{{ 'navigation.guide' | t }}</a></li>{% endif %}
+  {% if pages['our-mission'] != blank %}<li><a href="{{ pages['our-mission'].url }}">{{ 'navigation.story' | t }}</a></li>{% endif %}
+{% endif %}

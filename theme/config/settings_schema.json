@@ -1,0 +1,51 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "OUDIE Atelier",
+    "theme_version": "1.0.0",
+    "theme_author": "OUDIE",
+    "theme_documentation_url": "https://www.oudie.ca",
+    "theme_support_url": "https://www.oudie.ca"
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Warm paper",
+        "default": "#F5F0E8"
+      },
+      {
+        "type": "color",
+        "id": "surface",
+        "label": "Light surface",
+        "default": "#FCFAF6"
+      },
+      {
+        "type": "color",
+        "id": "foreground",
+        "label": "Text",
+        "default": "#171512"
+      },
+      {
+        "type": "color",
+        "id": "accent",
+        "label": "Amber accent",
+        "default": "#9B7444"
+      },
+      {
+        "type": "color",
+        "id": "dark",
+        "label": "Dark surface",
+        "default": "#211F1C"
+      },
+      {
+        "type": "text",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping threshold (CAD)",
+        "default": "120"
+      }
+    ]
+  }
+]

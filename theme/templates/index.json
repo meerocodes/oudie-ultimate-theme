@@ -1,0 +1,51 @@
+{
+  "sections": {
+    "hero": {
+      "type": "home-hero",
+      "settings": {
+        "product": "oudie-eau-de-parfum"
+      }
+    },
+    "intro": {
+      "type": "home-intro",
+      "settings": {}
+    },
+    "products": {
+      "type": "featured-products",
+      "settings": {
+        "eyebrow": "The scent wardrobe",
+        "heading": "Find something personal.",
+        "scents": [
+          "oudie-madawi",
+          "oudie-brilliance",
+          "oudie-musk-amore",
+          "zenobia"
+        ],
+        "products": [
+          "oudie-eau-de-parfum",
+          "elegant-oaganic-rubs",
+          "multi-purpose-oud-sprays",
+          "premium-extrait-de-parfum",
+          "premium-oil-rub-blends"
+        ]
+      }
+    },
+    "sample": {
+      "type": "home-sample",
+      "settings": {
+        "product": "sample-pack-1-of-each-scent"
+      }
+    },
+    "experience": {
+      "type": "home-experience",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "products",
+    "intro",
+    "sample",
+    "experience"
+  ]
+}

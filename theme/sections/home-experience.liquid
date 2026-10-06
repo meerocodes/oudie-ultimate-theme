@@ -1,0 +1,8 @@
+{% assign experience_link = section.settings.link | default: pages['oudie-experiences'].url %}
+<section class="section experience-callout"><div class="page-width split{% if section.settings.image == blank %} split--text{% endif %}">
+  <div class="split-copy dark-panel"><p class="eyebrow">{{ section.settings.eyebrow | escape }}</p><h2 class="section-title">{{ section.settings.heading | escape }}</h2><p class="section-copy">{{ section.settings.copy | escape }}</p>{% if experience_link != blank %}<a class="btn btn--light" href="{{ experience_link }}">{{ 'homepage.experience_link' | t }}</a>{% endif %}</div>
+  {% if section.settings.image != blank %}<div class="split-media">{{ section.settings.image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '360,600,900,1200,1400', sizes: '(min-width: 760px) 50vw, 100vw' }}</div>{% endif %}
+</div></section>
+{% schema %}
+{"name":"Experience callout","settings":[{"type":"image_picker","id":"image","label":"Authentic Oud Bar image"},{"type":"text","id":"eyebrow","label":"Eyebrow","default":"OUDIE Experiences"},{"type":"text","id":"heading","label":"Heading","default":"Bring fragrance into the room."},{"type":"textarea","id":"copy","label":"Copy","default":"Discover the Oud Bar for weddings, corporate events and private gatherings. Tell us what you have in mind."},{"type":"url","id":"link","label":"Experiences link"}],"presets":[{"name":"Experience callout"}]}
+{% endschema %}

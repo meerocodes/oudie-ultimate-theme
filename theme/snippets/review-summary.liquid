@@ -1,0 +1,7 @@
+{% doc %}
+  Renders the existing Judge.me product rating badge.
+  @param {product} product - Native Shopify product.
+{% enddoc %}
+{% if product.metafields.judgeme.badge != blank %}
+  <div class="jdgm-widget jdgm-preview-badge review-summary" data-id="{{ product.id }}">{{ product.metafields.judgeme.badge }}</div>
+{% endif %}

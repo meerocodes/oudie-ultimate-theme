@@ -1,0 +1,4 @@
+<section class="page-width page-hero"><div class="eyebrow">Search</div><h1 class="section-title">Search OUDIE</h1></section>
+<section class="page-width section-tight"><form class="search-form" action="{{ routes.search_url }}"><input class="select" type="search" name="q" value="{{ search.terms | escape }}" placeholder="Search products and pages"><button class="btn">Search</button></form>
+{% if search.performed %}<div class="product-grid" style="margin-top:40px">{% for item in search.results %}{% if item.object_type == 'product' %}{% render 'product-card', product: item %}{% endif %}{% endfor %}</div>{% endif %}</section>
+{% schema %}{"name":"Main search","settings":[]}{% endschema %}

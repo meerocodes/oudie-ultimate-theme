@@ -1,0 +1,11 @@
+{% assign sample = section.settings.product %}
+{% assign sample_image = section.settings.image | default: sample.featured_image %}
+<section class="section sample-callout"><div class="page-width split{% if sample_image == blank %} split--text{% endif %}">
+  {% if sample_image != blank %}<div class="split-media">{{ sample_image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '360,600,900,1200,1400', sizes: '(min-width: 760px) 50vw, 100vw' }}</div>{% endif %}
+  <div class="split-copy"><p class="eyebrow">{{ section.settings.eyebrow | escape }}</p><h2 class="section-title">{{ section.settings.heading | escape }}</h2><p class="section-copy">{{ section.settings.copy | escape }}</p>
+    {% assign link = section.settings.link | default: sample.url %}{% if link != blank %}<a class="btn" href="{{ link }}">{{ 'homepage.sample_link' | t }}</a>{% endif %}
+  </div>
+</div></section>
+{% schema %}
+{"name":"Sample callout","settings":[{"type":"image_picker","id":"image","label":"Image"},{"type":"product","id":"product","label":"Sample product"},{"type":"text","id":"eyebrow","label":"Eyebrow","default":"Start small"},{"type":"text","id":"heading","label":"Heading","default":"Meet OUDIE in samples."},{"type":"textarea","id":"copy","label":"Copy","default":"Explore on your skin before choosing a full-size fragrance. Give each scent a little time."},{"type":"url","id":"link","label":"Sample link"}],"presets":[{"name":"Sample callout"}]}
+{% endschema %}

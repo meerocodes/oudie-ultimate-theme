@@ -1,0 +1,56 @@
+{% liquid
+  assign variant = product.selected_or_first_available_variant
+  assign scent = variant.metafields.custom.scent.value
+  if scent == blank
+    assign scent = product.metafields.custom.scent.value
+  endif
+%}
+<section class="page-width section-tight" data-product-root>
+  <div class="product-page">
+    <div class="product-gallery">
+      {% for media in product.media %}
+        {% if media.media_type == 'image' %}{{ media | image_url: width: 1800 | image_tag: loading: 'lazy', widths: '600,900,1200,1600,1800', alt: media.alt | default: product.title }}{% endif %}
+      {% else %}
+        {% if product.featured_image %}{{ product.featured_image | image_url: width: 1600 | image_tag }}{% endif %}
+      {% endfor %}
+    </div>
+    <div class="product-details">
+      {% if scent and scent.line.value != blank %}<div class="eyebrow">{{ scent.line.value }}</div>{% else %}<div class="eyebrow">OUDIE</div>{% endif %}
+      <h1 class="product-title">{% if scent and scent.name.value != blank %}{{ scent.name.value }}{% else %}{{ product.title }}{% endif %}</h1>
+      {% unless product.title contains product.selected_or_first_available_variant.title %}<div class="product-subtitle">{{ product.title }}</div>{% endunless %}
+      {% render 'review-summary', product: product %}
+      <div class="product-price" data-product-price>{{ variant.price | money }}</div>
+      {% form 'product', product %}
+        {% if product.variants.size > 1 %}
+          <div class="variant-field"><label for="VariantSelect-{{ section.id }}">Choose format / option</label>
+            <select class="select" id="VariantSelect-{{ section.id }}" name="id" data-variant-select>
+              {% for v in product.variants %}<option value="{{ v.id }}" data-url="{{ v.url }}" data-price="{{ v.price | money }}" data-available="{{ v.available }}" {% if v.id == variant.id %}selected{% endif %}>{{ v.title }} — {{ v.price | money }}{% unless v.available %} — Sold out{% endunless %}</option>{% endfor %}
+            </select>
+          </div>
+        {% endif %}
+        {% if product.variants.size == 1 %}<input type="hidden" name="id" value="{{ variant.id }}">{% endif %}
+        <button class="btn atc" type="submit" data-atc {% unless variant.available %}disabled{% endunless %}>{% if variant.available %}Add to bag{% else %}Sold out{% endif %}</button>
+        {{ form | payment_button }}
+      {% endform %}
+
+      {% if scent %}
+        <div class="note-pyramid">
+          {% if scent.top_notes.value != blank %}<div class="note-row"><div class="note-label">Top</div><div>{{ scent.top_notes.value | join: ', ' }}</div></div>{% endif %}
+          {% if scent.heart_notes.value != blank %}<div class="note-row"><div class="note-label">Heart</div><div>{{ scent.heart_notes.value | join: ', ' }}</div></div>{% endif %}
+          {% if scent.base_notes.value != blank %}<div class="note-row"><div class="note-label">Base</div><div>{{ scent.base_notes.value | join: ', ' }}</div></div>{% endif %}
+        </div>
+      {% elsif variant.metafields.custom.scent_notes.value != blank %}
+        <div class="rte" style="margin:28px 0;white-space:pre-line">{{ variant.metafields.custom.scent_notes.value }}</div>
+      {% endif %}
+
+      <div class="accordion">
+        <details open><summary>About this product</summary><div class="rte">{{ product.description }}</div></details>
+        <details><summary>Try it first</summary><div class="rte"><p>Not sure yet? Start with a sample option before committing to a full-size format.</p><a href="/products/sample-pack-1-of-each-scent">Explore samples →</a></div></details>
+        <details><summary>Shipping</summary><div class="rte"><p>{{ 'commerce.shipping_policy' | t: threshold: settings.free_shipping_threshold }}</p></div></details>
+      </div>
+      {% for block in section.blocks %}{% if block.type == '@app' %}<div {{ block.shopify_attributes }}>{% render block %}</div>{% endif %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% render 'product-reviews', product: product %}
+{% schema %}{"name":"Main product","settings":[],"blocks":[{"type":"@app"}]}{% endschema %}

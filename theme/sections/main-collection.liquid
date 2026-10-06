@@ -1,0 +1,28 @@
+<section>
+  <div class="page-width collection-head">
+    <div class="collection-head-row">
+      <div><div class="eyebrow">OUDIE collection</div><h1 class="section-title">{{ collection.title }}</h1>{% if collection.description != blank %}<div class="section-copy">{{ collection.description | strip_html | truncate: 240 }}</div>{% endif %}</div>
+    </div>
+    <div class="collection-toolbar" aria-label="Shop shortcuts">
+      <a class="chip" href="/collections/all-oudie">All</a><a class="chip" href="/pages/our-scents">By scent</a><a class="chip" href="/products/sample-pack-1-of-each-scent">Samples</a><a class="chip" href="/pages/oudie-experiences">Experiences</a>
+    </div>
+  </div>
+  <div class="page-width section-tight">
+    {% paginate collection.products by 24 %}
+      {% assign rendered_count = 0 %}
+      <div class="product-grid">
+        {% for product in collection.products %}
+          {% assign event_product = false %}
+          {% if product.type == 'Event Ticket' or product.type == 'Workshops' or product.template_suffix == 'workshop' or product.template_suffix == 'oud-and-stones' %}{% assign event_product = true %}{% endif %}
+          {% if event_product == false or collection.handle == 'workshops' %}
+            {% render 'product-card', product: product %}
+            {% assign rendered_count = rendered_count | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+        {% if rendered_count == 0 %}<div class="empty-state">{{ 'cards.no_products' | t }}</div>{% endif %}
+      </div>
+      {% if paginate.pages > 1 %}<div class="pagination">{{ paginate | default_pagination }}</div>{% endif %}
+    {% endpaginate %}
+  </div>
+</section>
+{% schema %}{"name":"Main collection","settings":[]}{% endschema %}

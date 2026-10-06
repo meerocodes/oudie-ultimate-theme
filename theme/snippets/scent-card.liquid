@@ -1,0 +1,57 @@
+{% doc %}
+  Aggregates selected fragrance products by canonical scent ID.
+  @param {metaobject} scent - Canonical OUDIE scent.
+  @param {product[]} products - Merchant-selected fragrance products.
+{% enddoc %}
+{% liquid
+  assign min_price = nil
+  assign sold_price = nil
+  assign card_variant = nil
+  assign sold_variant = nil
+  assign card_product = nil
+  assign sold_product = nil
+  assign formats = ''
+  assign allowed_types = 'Extrait de Parfum|Oil Blends|Mists|Car Diffusers|Car Fresheners|Beard Care|Bakhoor' | split: '|'
+%}
+{% for format_product in products %}
+  {% if allowed_types contains format_product.type %}
+    {% unless format_product.template_suffix == 'workshop' or format_product.template_suffix == 'oud-and-stones' %}
+      {% assign product_scent = format_product.metafields.custom.scent.value %}
+      {% assign has_available_format = false %}
+      {% for format_variant in format_product.variants %}
+        {% assign variant_scent = format_variant.metafields.custom.scent.value | default: product_scent %}
+        {% if variant_scent.system.id == scent.system.id %}
+          {% if sold_price == nil or format_variant.price < sold_price %}
+            {% assign sold_price = format_variant.price %}{% assign sold_variant = format_variant %}{% assign sold_product = format_product %}
+          {% endif %}
+          {% if format_variant.available %}
+            {% assign has_available_format = true %}
+            {% if min_price == nil or format_variant.price < min_price %}
+              {% assign min_price = format_variant.price %}{% assign card_variant = format_variant %}{% assign card_product = format_product %}
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      {% if has_available_format %}
+        {% assign format_label = format_product.type %}
+        {% case format_product.type %}
+          {% when 'Extrait de Parfum' %}{% assign format_label = 'cards.extrait' | t %}
+          {% when 'Oil Blends' %}{% assign format_label = 'cards.oil' | t %}
+          {% when 'Mists' %}{% assign format_label = 'cards.mist' | t %}
+          {% when 'Car Diffusers' %}{% assign format_label = 'cards.car' | t %}
+        {% endcase %}
+        {% assign format_token = format_label | prepend: '|' | append: '|' %}
+        {% unless formats contains format_token %}{% assign formats = formats | append: format_token %}{% endunless %}
+      {% endif %}
+    {% endunless %}
+  {% endif %}
+{% endfor %}
+{% if card_variant == nil %}
+  {% assign card_variant = sold_variant %}{% assign card_product = sold_product %}{% assign min_price = sold_price %}
+{% endif %}
+{% capture format_list %}
+  {% assign labels = formats | split: '|' %}{% assign separator = '' %}
+  {% for label in labels %}{% if label != blank %}{{ separator }}{{ label }}{% assign separator = ' · ' %}{% endif %}{% endfor %}
+{% endcapture %}
+{% assign format_list = format_list | strip %}
+{% if card_variant != nil %}{% render 'product-card', product: card_product, variant: card_variant, scent: scent, card_price: min_price, formats: format_list, scent_card: true %}{% endif %}

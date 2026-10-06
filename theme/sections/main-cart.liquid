@@ -1,0 +1,24 @@
+<section class="page-width cart-page">
+  <div class="eyebrow">Your bag</div><h1 class="section-title" style="font-size:clamp(2.8rem,7vw,5.5rem)">Cart</h1>
+  {% if cart.item_count == 0 %}<div class="empty-state"><p>Your bag is empty.</p><a class="btn" href="/collections/all-oudie">Shop OUDIE</a></div>{% else %}
+    {% assign threshold_cents = settings.free_shipping_threshold | times: 100 %}
+    {% if cart.requires_shipping %}
+      {% if cart.currency.iso_code == 'CAD' and threshold_cents > 0 %}
+        {% assign pct = cart.total_price | times: 100.0 | divided_by: threshold_cents | at_most: 100 %}
+        <div class="shipping-progress"><strong>{% if cart.total_price >= threshold_cents %}{{ 'commerce.shipping_reached' | t }}{% else %}{% assign remaining = threshold_cents | minus: cart.total_price | money_with_currency %}{{ 'commerce.shipping_remaining' | t: amount: remaining }}{% endif %}</strong><p>{{ 'commerce.shipping_eligibility' | t }}</p><div class="progress-track"><div class="progress-fill" style="width:{{ pct }}%"></div></div></div>
+      {% else %}
+        <div class="shipping-progress">{{ 'commerce.shipping_policy' | t: threshold: settings.free_shipping_threshold }}</div>
+      {% endif %}
+    {% endif %}
+    <form action="{{ routes.cart_url }}" method="post">
+      {% for item in cart.items %}<div class="cart-line">
+        <a href="{{ item.url }}">{% if item.image %}{{ item.image | image_url: width: 180 | image_tag }}{% endif %}</a>
+        <div><strong>{{ item.product.title }}</strong><div style="font-size:.86rem;color:var(--muted)">{{ item.variant.title }}</div><div style="margin-top:8px"><label class="visually-hidden" for="updates_{{ item.key }}">Quantity</label><input class="select" style="width:82px" id="updates_{{ item.key }}" name="updates[]" value="{{ item.quantity }}" type="number" min="0"></div></div>
+        <div>{{ item.final_line_price | money }}</div>
+      </div>{% endfor %}
+      <div class="cart-total"><span>Total</span><span>{{ cart.total_price | money }}</span></div>
+      <div class="button-row" style="justify-content:flex-end"><button class="btn btn--ghost" name="update">Update</button><button class="btn" type="submit" name="checkout">Checkout</button></div>
+    </form>
+  {% endif %}
+</section>
+{% schema %}{"name":"Main cart","settings":[]}{% endschema %}

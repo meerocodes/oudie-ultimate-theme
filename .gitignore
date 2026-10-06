@@ -1,0 +1,21 @@
+# Local operating-system and editor artifacts
+.DS_Store
+._*
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Credentials and local tooling
+.env
+.env.*
+!.env.example
+.aws/
+.shopify/
+node_modules/
+*.log
+
+# Generated QA/build output
+coverage/
+playwright-report/
+test-results/

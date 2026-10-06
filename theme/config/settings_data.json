@@ -1,0 +1,11 @@
+{
+  "current": {
+    "background": "#F5F0E8",
+    "foreground": "#171512",
+    "accent": "#9B7444",
+    "dark": "#211F1C",
+    "free_shipping_threshold": "120",
+    "surface": "#FCFAF6"
+  },
+  "presets": {}
+}

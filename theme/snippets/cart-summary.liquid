@@ -1,0 +1,14 @@
+{% doc %}
+  Native cart totals and qualified shipping information.
+{% enddoc %}
+{% if cart.requires_shipping %}
+  {% assign threshold = settings.free_shipping_threshold | times: 100 %}
+  {% if settings.shipping_progress_enabled and cart.currency.iso_code == 'CAD' and threshold > 0 %}
+    {% assign remaining = threshold | minus: cart.total_price %}
+    {% assign percent = cart.total_price | times: 100.0 | divided_by: threshold | at_most: 100 %}
+    <div class="shipping-progress"><p>{% if remaining > 0 %}{% assign amount = remaining | money_with_currency %}{{ 'commerce.shipping_remaining' | t: amount: amount }}{% else %}{{ 'commerce.shipping_reached' | t }}{% endif %}</p><p>{{ 'commerce.shipping_eligibility' | t }}</p><div class="progress-track" role="progressbar" aria-label="Free shipping threshold" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ percent | round }}"><div class="progress-fill" style="width:{{ percent }}%"></div></div></div>
+  {% else %}<p class="purchase-shipping">{{ 'commerce.shipping_policy' | t: threshold: settings.free_shipping_threshold }}</p>{% endif %}
+{% endif %}
+{% for discount in cart.cart_level_discount_applications %}<div class="cart-discount">{{ discount.title | escape }} (−{{ discount.total_allocated_amount | money }})</div>{% endfor %}
+<div class="cart-total"><span>Subtotal</span><span>{{ cart.total_price | money_with_currency }}</span></div>
+<p class="cart-tax-note">{% if cart.taxes_included %}Taxes included. {% endif %}Shipping{% unless cart.taxes_included %} and taxes{% endunless %} calculated at checkout.</p>

@@ -40,3 +40,7 @@ Do not use the previous imported theme or the failed “Full Plan” rebuild as 
 ## Foundation batch — October 5, 2026
 
 The global design system, accessible mobile navigation, homepage hero/composition and curated canonical scent cards are now implemented locally. Native no-JavaScript variant submission and the invalid gift-card QR filter were also corrected. Local structural, catalog-fixture, responsive and interaction checks pass; Shopify development-theme commerce/review/checkout validation remains pending. See `docs/16_FOUNDATION_BATCH.md` for changed files, data sources, QA evidence and remaining gates. No store data or live theme was modified.
+
+## Scent commerce batch — October 8, 2026
+
+Implemented the canonical scent catalog, perfume-first discovery, scent-preserving mobile/desktop format controls, compact PDP gallery, and native Ajax cart drawer. Local data/commerce/responsive QA passes; the isolated unpublished preview also passes the Madawi format/color/cart flow and native Shop Pay checkout handoff. See `docs/18_SCENT_COMMERCE_BATCH.md` for configuration, evidence, preview, and remaining launch gates. Judge.me app-embed verification is blocked by Shopify Admin account verification; shipping progress is intentionally disabled pending eligibility verification. Product descriptions and the live theme remain unchanged.

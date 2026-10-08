@@ -1,0 +1,31 @@
+{% doc %}
+  Deduplicated scent discovery from the configured complete fragrance catalog.
+  @param {string} id
+  @param {string} [query]
+{% enddoc %}
+<div data-discovery data-initial-query="{{ query | escape }}">
+  <form class="discovery-controls" data-discovery-controls hidden>
+    <div class="field"><label for="ScentSearch-{{ id }}">Find a scent</label><input id="ScentSearch-{{ id }}" type="search" value="{{ query | escape }}" placeholder="Name or note" data-discovery-search></div>
+    <div class="field"><label for="ScentFormat-{{ id }}">Format</label><select id="ScentFormat-{{ id }}" data-discovery-format><option value="">All formats</option>{% assign seen_types = '' %}{% for p in settings.fragrance_products %}{% assign has_scent = false %}{% for v in p.variants %}{% if v.metafields.custom.scent.value != blank or p.metafields.custom.scent.value != blank %}{% assign has_scent = true %}{% endif %}{% endfor %}{% assign type_token = p.type | prepend: '|' | append: '|' %}{% if has_scent %}{% unless seen_types contains type_token %}<option value="{{ p.type | escape }}">{% render 'format-label', product: p %}</option>{% assign seen_types = seen_types | append: type_token %}{% endunless %}{% endif %}{% endfor %}</select></div>
+    <div class="field"><label for="ScentClass-{{ id }}">Classification</label><select id="ScentClass-{{ id }}" data-discovery-class><option value="">All classifications</option></select></div>
+    <button class="text-link discovery-reset" type="reset">Clear filters</button>
+  </form>
+  <p class="discovery-count" data-discovery-count aria-live="polite"></p>
+  <div class="product-grid" data-discovery-grid>
+    {% assign seen_scents = '' %}
+    {% for p in settings.fragrance_products %}
+      {% for v in p.variants %}
+        {% assign scent = v.metafields.custom.scent.value | default: p.metafields.custom.scent.value %}
+        {% if scent != blank %}
+          {% assign token = scent.system.id | prepend: '|' | append: '|' %}
+          {% unless seen_scents contains token %}
+            {% render 'scent-card', scent: scent, products: settings.fragrance_products, query: query %}
+            {% assign seen_scents = seen_scents | append: token %}
+          {% endunless %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <div class="empty-state" data-discovery-empty hidden><p>No matching scents. Try another name, note, or format.</p><button type="button" class="btn btn--ghost" data-discovery-clear>Clear filters</button></div>
+  {% if settings.fragrance_products == blank %}<p>No fragrances are configured yet.</p>{% endif %}
+</div>

@@ -5,7 +5,20 @@
     "accent": "#9B7444",
     "dark": "#211F1C",
     "free_shipping_threshold": "120",
-    "surface": "#FCFAF6"
+    "surface": "#FCFAF6",
+    "fragrance_products": [
+      "oudie-eau-de-parfum",
+      "premium-extrait-de-parfum",
+      "elegant-oaganic-rubs",
+      "premium-oil-rub-blends",
+      "multi-purpose-oud-sprays",
+      "deluxe-oudie-car-freshner",
+      "deluxe-car-air-freshners",
+      "oudie-beard-growth-oil",
+      "bakhoor-incense-cones"
+    ],
+    "sample_product": "sample-pack-1-of-each-scent",
+    "shipping_progress_enabled": false
   },
   "presets": {}
 }

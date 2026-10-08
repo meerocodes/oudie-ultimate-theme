@@ -3,7 +3,7 @@
   {% for scent in section.settings.scents %}
     {% assign scent_token = scent.system.id | prepend: '|' | append: '|' %}
     {% unless seen_scents contains scent_token %}
-      {% render 'scent-card', scent: scent, products: section.settings.products %}
+      {% assign catalog = settings.fragrance_products | default: section.settings.products %}{% render 'scent-card', scent: scent, products: catalog %}
       {% assign seen_scents = seen_scents | append: scent_token %}
     {% endunless %}
   {% endfor %}

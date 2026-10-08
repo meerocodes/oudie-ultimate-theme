@@ -1,0 +1,13 @@
+{% doc %}
+  Customer-facing native product format.
+  @param {product} product
+{% enddoc %}
+{%- case product.type -%}
+  {%- when 'Extrait de Parfum' -%}Perfume
+  {%- when 'Oil Blends' -%}Oil
+  {%- when 'Mists' -%}Mist
+  {%- when 'Car Diffusers' -%}Car diffuser
+  {%- when 'Car Fresheners' -%}Car freshener
+  {%- when 'Beard Care' -%}Beard oil
+  {%- else -%}{{ product.type | escape }}
+{%- endcase -%}

@@ -15,7 +15,7 @@
     </details>
     <a class="wordmark" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">OUDIE</a>
     <nav class="desktop-nav" aria-label="{{ 'navigation.primary' | t }}"><ul>{% render 'header-links', menu: section.settings.menu %}</ul></nav>
-    <div class="header-actions"><a class="header-search" href="{{ routes.search_url }}">{{ 'general.search' | t }}</a><a class="cart-link" href="{{ routes.cart_url }}">{{ 'general.cart' | t }}{% if cart.item_count > 0 %}<span class="bag-count">({{ cart.item_count }})</span>{% endif %}</a></div>
+    <div class="header-actions"><a class="header-search" href="{{ routes.search_url }}">{{ 'general.search' | t }}</a><a data-cart-open class="cart-link" href="{{ routes.cart_url }}">{{ 'general.cart' | t }}<span class="bag-count" data-bag-count {% if cart.item_count == 0 %}hidden{% endif %}>({{ cart.item_count }})</span></a></div>
   </div>
 </header>
 {% schema %}

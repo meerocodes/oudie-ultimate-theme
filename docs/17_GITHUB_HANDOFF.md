@@ -4,7 +4,7 @@
 
 Keep the complete continuation pack in version control: `theme/`, `docs/`, `research/`, `.codex/skills/`, and the root project instructions. The Shopify theme root is `theme/`; the repository root contains supporting material and is not a deployable theme directory.
 
-Start with `AGENTS.md`, `MASTER_PROMPT.md`, `PROJECT_STATE.md`, and `docs/16_FOUNDATION_BATCH.md`. The foundation batch records completed local work and the pending Shopify validation gates. Continue from this scratch theme and preserve the original SEO audit.
+Start with `AGENTS.md`, `MASTER_PROMPT.md`, `PROJECT_STATE.md`, `docs/16_FOUNDATION_BATCH.md`, and `docs/18_SCENT_COMMERCE_BATCH.md`. The batch notes record completed work and pending Shopify validation gates. Continue from this scratch theme and preserve the original SEO audit.
 
 ## Working from a clone
 

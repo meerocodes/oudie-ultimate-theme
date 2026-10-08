@@ -5,6 +5,7 @@
   @param {metaobject} [scent] - Canonical scent.
   @param {number} [card_price] - Native price in minor units.
   @param {string} [formats] - Available format labels.
+  @param {string} [price_label] - Destination format label.
   @param {boolean} [scent_card] - Render scent-first content.
 {% enddoc %}
 {% liquid
@@ -25,7 +26,7 @@
     assign image = card_variant.featured_media.preview_image | default: card_scent.hero_image.value | default: product.featured_image
     assign available = card_variant.available
     assign price = card_price | default: card_variant.price
-    assign from_price = true
+    assign from_price = false
   endif
   assign image_alt = image.alt | default: card_name
   assign notes = ''
@@ -50,7 +51,7 @@
     <div class="product-card-info">
       <h3 class="product-card-title">{{ card_name | escape }}</h3>
       {% if notes != blank %}<p class="product-card-notes">{{ notes | escape }}</p>{% endif %}
-      <p class="product-card-price">{% if from_price %}{{ 'cards.from' | t }} {% endif %}{{ price | money }}</p>
+      <p class="product-card-price" data-card-price>{% if price_label != blank %}{{ price_label | strip | escape }} · {% endif %}{% if from_price %}{{ 'cards.from' | t }} {% endif %}{{ price | money }}</p>
       {% if formats != blank %}<p class="product-card-formats">{{ formats | escape }}</p>{% endif %}
       {% if scent_card %}<span class="product-card-action">{{ 'cards.discover' | t }} <span aria-hidden="true">↗</span></span>{% endif %}
     </div>

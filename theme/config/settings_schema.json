@@ -47,5 +47,29 @@
         "default": "120"
       }
     ]
+  },
+  {
+    "name": "Scent commerce",
+    "settings": [
+      {
+        "type": "product_list",
+        "id": "fragrance_products",
+        "label": "Fragrance catalog",
+        "limit": 50,
+        "info": "Include every fragrance format. Matching uses canonical scent references; tickets and samples are excluded."
+      },
+      {
+        "type": "product",
+        "id": "sample_product",
+        "label": "Samples destination"
+      },
+      {
+        "type": "checkbox",
+        "id": "shipping_progress_enabled",
+        "label": "Show shipping progress",
+        "default": false,
+        "info": "Enable after confirming the CAD threshold and eligible merchandise with your shipping policy."
+      }
+    ]
   }
 ]

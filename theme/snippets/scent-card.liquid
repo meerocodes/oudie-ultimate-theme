@@ -1,57 +1,82 @@
 {% doc %}
-  Aggregates selected fragrance products by canonical scent ID.
-  @param {metaobject} scent - Canonical OUDIE scent.
-  @param {product[]} products - Merchant-selected fragrance products.
+  Shared canonical scent resolver. Modes: card (default), links, options.
+  @param {metaobject} scent
+  @param {product[]} products
+  @param {string} [query]
+  @param {string} [mode]
+  @param {product} [current_product]
+  @param {variant} [current_variant]
 {% enddoc %}
 {% liquid
-  assign min_price = nil
-  assign sold_price = nil
-  assign card_variant = nil
-  assign sold_variant = nil
-  assign card_product = nil
-  assign sold_product = nil
+  assign preferred_product = nil
+  assign preferred_variant = nil
+  assign best_rank = 99
   assign formats = ''
   assign allowed_types = 'Extrait de Parfum|Oil Blends|Mists|Car Diffusers|Car Fresheners|Beard Care|Bakhoor' | split: '|'
 %}
-{% for format_product in products %}
-  {% if allowed_types contains format_product.type %}
-    {% unless format_product.template_suffix == 'workshop' or format_product.template_suffix == 'oud-and-stones' %}
-      {% assign product_scent = format_product.metafields.custom.scent.value %}
-      {% assign has_available_format = false %}
-      {% for format_variant in format_product.variants %}
-        {% assign variant_scent = format_variant.metafields.custom.scent.value | default: product_scent %}
-        {% if variant_scent.system.id == scent.system.id %}
-          {% if sold_price == nil or format_variant.price < sold_price %}
-            {% assign sold_price = format_variant.price %}{% assign sold_variant = format_variant %}{% assign sold_product = format_product %}
-          {% endif %}
-          {% if format_variant.available %}
-            {% assign has_available_format = true %}
-            {% if min_price == nil or format_variant.price < min_price %}
-              {% assign min_price = format_variant.price %}{% assign card_variant = format_variant %}{% assign card_product = format_product %}
-            {% endif %}
+{% capture destinations %}
+  {% for format_product in products %}
+    {% if allowed_types contains format_product.type %}
+      {% unless format_product.template_suffix == 'workshop' or format_product.template_suffix == 'oud-and-stones' %}
+        {% liquid
+          assign match = nil
+          assign sold_match = nil
+          assign product_scent = format_product.metafields.custom.scent.value
+          for candidate in format_product.variants
+            assign candidate_scent = candidate.metafields.custom.scent.value | default: product_scent
+            if candidate_scent != blank and candidate_scent.system.id == scent.system.id
+              if sold_match == nil
+                assign sold_match = candidate
+              endif
+              if candidate.available and match == nil
+                assign match = candidate
+              endif
+            endif
+          endfor
+          assign match = match | default: sold_match
+          if current_product.id == format_product.id and current_variant != blank
+            assign match = current_variant
+          endif
+          assign rank = 3
+          case format_product.type
+            when 'Extrait de Parfum'
+              assign rank = 0
+            when 'Oil Blends'
+              assign rank = 1
+            when 'Mists'
+              assign rank = 2
+          endcase
+          unless match.available
+            assign rank = rank | plus: 10
+          endunless
+        %}
+        {% if match != nil %}
+          {% capture label %}{% render 'format-label', product: format_product %}{% endcapture %}
+          {% assign label = label | strip %}
+          {% if rank < best_rank %}{% assign best_rank = rank %}{% assign preferred_product = format_product %}{% assign preferred_variant = match %}{% endif %}
+          {% if match.available %}{% assign token = label | prepend: '|' | append: '|' %}{% unless formats contains token %}{% assign formats = formats | append: token %}{% endunless %}{% endif %}
+          {% if mode == 'links' %}
+            <a class="format-choice{% if current_product.id == format_product.id %} is-active{% endif %}" href="{{ match.url }}" {% if current_product.id == format_product.id %}aria-current="true"{% endif %}>{{ label }}{% unless match.available %}<span>Sold out</span>{% endunless %}</a>
+          {% elsif mode == 'options' %}
+            <option value="{{ match.url }}" {% if current_product.id == format_product.id %}selected{% endif %}>{{ label }} — {{ match.price | money }}{% unless match.available %} — Sold out{% endunless %}</option>
+          {% else %}
+            <span hidden data-format-destination data-format="{{ format_product.type | escape }}" data-url="{{ match.url }}" data-label="{{ label | escape }}" data-price="{{ match.price | money | escape }}" data-available="{{ match.available }}" data-image="{% if match.featured_media.preview_image %}{{ match.featured_media.preview_image | image_url: width: 700 }}{% elsif format_product.featured_image %}{{ format_product.featured_image | image_url: width: 700 }}{% endif %}"></span>
           {% endif %}
         {% endif %}
-      {% endfor %}
-      {% if has_available_format %}
-        {% assign format_label = format_product.type %}
-        {% case format_product.type %}
-          {% when 'Extrait de Parfum' %}{% assign format_label = 'cards.extrait' | t %}
-          {% when 'Oil Blends' %}{% assign format_label = 'cards.oil' | t %}
-          {% when 'Mists' %}{% assign format_label = 'cards.mist' | t %}
-          {% when 'Car Diffusers' %}{% assign format_label = 'cards.car' | t %}
-        {% endcase %}
-        {% assign format_token = format_label | prepend: '|' | append: '|' %}
-        {% unless formats contains format_token %}{% assign formats = formats | append: format_token %}{% endunless %}
-      {% endif %}
-    {% endunless %}
-  {% endif %}
-{% endfor %}
-{% if card_variant == nil %}
-  {% assign card_variant = sold_variant %}{% assign card_product = sold_product %}{% assign min_price = sold_price %}
-{% endif %}
-{% capture format_list %}
-  {% assign labels = formats | split: '|' %}{% assign separator = '' %}
-  {% for label in labels %}{% if label != blank %}{{ separator }}{{ label }}{% assign separator = ' · ' %}{% endif %}{% endfor %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
 {% endcapture %}
-{% assign format_list = format_list | strip %}
-{% if card_variant != nil %}{% render 'product-card', product: card_product, variant: card_variant, scent: scent, card_price: min_price, formats: format_list, scent_card: true %}{% endif %}
+{% if mode == 'links' or mode == 'options' %}
+  {{ destinations }}
+{% elsif preferred_variant != nil %}
+  {% capture labels %}{% assign separator = '' %}{% assign format_labels = formats | split: '|' %}{% for label in format_labels %}{% if label != blank %}{{ separator }}{{ label }}{% assign separator = ' · ' %}{% endif %}{% endfor %}{% endcapture %}
+  {% capture price_label %}{% render 'format-label', product: preferred_product %}{% endcapture %}
+  {% capture search_text %}{{ scent.name.value }} {{ scent.legacy_names.value | join: ' ' }} {% unless scent.system.handle == 'oudie-bella' %}{{ scent.top_notes.value | join: ' ' }} {{ scent.heart_notes.value | join: ' ' }} {{ scent.base_notes.value | join: ' ' }}{% endunless %} {{ labels | strip }}{% endcapture %}
+  {% assign search_text = search_text | downcase %}
+  {% assign search_matches = true %}{% assign query_words = query | downcase | split: ' ' %}{% for word in query_words %}{% unless search_text contains word %}{% assign search_matches = false %}{% endunless %}{% endfor %}
+  <div {% unless search_matches %}hidden{% endunless %} data-scent-result data-name="{{ scent.name.value | escape }}" data-classification="{{ scent.classification.value | join: '|' | downcase | escape }}" data-search="{{ scent.name.value | downcase | escape }} {{ scent.legacy_names.value | join: ' ' | downcase | escape }} {% unless scent.system.handle == 'oudie-bella' %}{{ scent.top_notes.value | join: ' ' | downcase | escape }} {{ scent.heart_notes.value | join: ' ' | downcase | escape }} {{ scent.base_notes.value | join: ' ' | downcase | escape }}{% endunless %} {{ labels | strip | downcase | escape }}">
+    {% render 'product-card', product: preferred_product, variant: preferred_variant, scent: scent, card_price: preferred_variant.price, formats: labels, price_label: price_label, scent_card: true %}
+    {{ destinations }}
+  </div>
+{% endif %}

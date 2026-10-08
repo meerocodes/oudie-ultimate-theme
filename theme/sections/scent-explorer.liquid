@@ -1,18 +1,3 @@
-<section class="page-width page-hero"><div class="eyebrow">Scent directory</div><h1 class="section-title">Find your OUDIE.</h1><p class="section-copy">Browse the store by the notes and scent families that already make sense to you.</p></section>
-<section class="page-width section-tight">
-  <div class="collection-toolbar" id="ScentFilters"><button class="chip is-active" data-scent-filter="all">All</button><button class="chip" data-scent-filter="musk">Musk</button><button class="chip" data-scent-filter="oud">Oud</button><button class="chip" data-scent-filter="sweet">Sweet</button><button class="chip" data-scent-filter="floral">Floral</button><button class="chip" data-scent-filter="fresh">Fresh</button></div>
-  <div class="product-grid" id="ScentGrid">
-    {% for product in collections.all.products %}
-      {% assign v = product.selected_or_first_available_variant %}{% assign scent = v.metafields.custom.scent.value %}{% if scent == blank %}{% assign scent = product.metafields.custom.scent.value %}{% endif %}
-      {% if scent %}
-        {% assign all_notes = scent.top_notes.value | concat: scent.heart_notes.value | concat: scent.base_notes.value | join: ' ' | downcase %}
-        {% assign classes = scent.classification.value | join: ' ' | downcase %}
-        <div data-scent-card data-haystack="{{ all_notes | escape }} {{ classes | escape }}">{% render 'product-card', product: product %}</div>
-      {% endif %}
-    {% endfor %}
-  </div>
-</section>
-<script>
-  document.addEventListener('DOMContentLoaded',()=>{const buttons=[...document.querySelectorAll('[data-scent-filter]')],cards=[...document.querySelectorAll('[data-scent-card]')];const map={sweet:['vanilla','caramel','honey','praline','cotton candy'],floral:['rose','jasmine','lotus','peony','ylang'],fresh:['citrus','bergamot','lemon','mandarin','grapefruit','aloe'],musk:['musk'],oud:['oud','agarwood','cambodian']};buttons.forEach(b=>b.addEventListener('click',()=>{buttons.forEach(x=>x.classList.remove('is-active'));b.classList.add('is-active');const f=b.dataset.scentFilter;cards.forEach(c=>{const h=c.dataset.haystack||'';c.style.display=f==='all'||(map[f]||[]).some(k=>h.includes(k))?'':'none'})}))});
-</script>
+<section class="page-width page-hero"><div class="eyebrow">Scent directory</div><h1 class="section-title">Find your OUDIE.</h1><p class="section-copy">Find a familiar note, explore a scent, and choose how to wear it.</p></section>
+<section class="page-width section-tight">{% render 'scent-grid', id: section.id %}</section>
 {% schema %}{"name":"Scent explorer","settings":[]}{% endschema %}

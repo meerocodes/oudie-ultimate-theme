@@ -8,6 +8,17 @@
     </div>
   </div>
   <div class="page-width section-tight">
+    {% if collection.handle == 'all-oudie' and settings.fragrance_products != blank %}
+      {% render 'scent-grid', id: section.id %}
+      <h2 class="section-title supporting-title">Samples & more</h2>
+      <div class="product-grid">
+        {% for product in collection.products %}
+          {% assign has_scent = false %}
+          {% for v in product.variants %}{% if v.metafields.custom.scent.value != blank or product.metafields.custom.scent.value != blank %}{% assign has_scent = true %}{% endif %}{% endfor %}
+          {% unless has_scent or product.type == 'Event Ticket' or product.type == 'Workshops' or product.template_suffix == 'workshop' or product.template_suffix == 'oud-and-stones' %}{% render 'product-card', product: product %}{% endunless %}
+        {% endfor %}
+      </div>
+    {% else %}
     {% paginate collection.products by 24 %}
       {% assign rendered_count = 0 %}
       <div class="product-grid">
@@ -23,6 +34,7 @@
       </div>
       {% if paginate.pages > 1 %}<div class="pagination">{{ paginate | default_pagination }}</div>{% endif %}
     {% endpaginate %}
+    {% endif %}
   </div>
 </section>
 {% schema %}{"name":"Main collection","settings":[]}{% endschema %}

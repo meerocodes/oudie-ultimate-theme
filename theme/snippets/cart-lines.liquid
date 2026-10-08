@@ -1,0 +1,22 @@
+{% doc %}
+  Native cart lines shared by drawer and full cart.
+  @param {string} context - Unique ID prefix.
+{% enddoc %}
+{% for item in cart.items %}
+  {% assign scent = item.variant.metafields.custom.scent.value | default: item.product.metafields.custom.scent.value %}
+  {% assign image_alt = item.image.alt | default: item.product.title %}
+  <div class="cart-line" data-cart-line>
+    <a href="{{ item.url }}" class="cart-line-image" aria-label="{{ item.product.title | escape }}">{% if item.image %}{{ item.image | image_url: width: 180 | image_tag: loading: 'lazy', alt: image_alt }}{% else %}<span class="card-placeholder">OUDIE</span>{% endif %}</a>
+    <div class="cart-line-details">
+      <a href="{{ item.url }}"><strong>{{ scent.name.value | default: item.product.title | escape }}</strong></a>
+      {% if scent %}<div class="cart-line-format">{% render 'format-label', product: item.product %}</div>{% endif %}
+      {% unless item.variant.title == 'Default Title' %}<div class="cart-line-options">{{ item.variant.title | escape }}</div>{% endunless %}
+      {% if item.selling_plan_allocation %}<div class="cart-line-options">{{ item.selling_plan_allocation.selling_plan.name | escape }}</div>{% endif %}
+      {% for property in item.properties %}{% assign first_character = property.first | slice: 0 %}{% if property.last != blank and first_character != '_' %}<div class="cart-line-options">{{ property.first | escape }}: {% if property.last contains '/uploads/' %}<a class="text-link" href="{{ property.last }}">View file</a>{% else %}{{ property.last | escape }}{% endif %}</div>{% endif %}{% endfor %}
+      {% if item.item_components.size > 0 %}<ul class="cart-components">{% for component in item.item_components %}<li>{{ component.quantity }} × {{ component.title | escape }}</li>{% endfor %}</ul>{% endif %}
+      {% for discount in item.line_level_discount_allocations %}<div class="cart-discount">{{ discount.discount_application.title | escape }} (−{{ discount.amount | money }})</div>{% endfor %}
+      <div class="cart-line-actions"><label class="visually-hidden" for="Quantity-{{ context }}-{{ forloop.index }}">Quantity for {{ scent.name.value | default: item.product.title | escape }} {{ item.variant.title | escape }}</label><input id="Quantity-{{ context }}-{{ forloop.index }}" class="select" name="updates[]" value="{{ item.quantity }}" type="number" min="0" step="1" inputmode="numeric" data-cart-quantity data-key="{{ item.key | escape }}"><a class="text-link" href="{{ item.url_to_remove }}" data-cart-remove data-key="{{ item.key | escape }}">Remove</a></div>
+    </div>
+    <div class="cart-line-price">{% if item.original_line_price > item.final_line_price %}<s>{{ item.original_line_price | money }}</s>{% endif %}{{ item.final_line_price | money }}</div>
+  </div>
+{% endfor %}

@@ -148,63 +148,118 @@
     });
   }
 
+  function selectCardFormat(card, destination) {
+    card.querySelectorAll('[data-card-link]').forEach(link => { link.href = destination.dataset.url; });
+    card.querySelector('[data-card-price]').textContent = `${destination.dataset.label} · ${destination.dataset.price}`;
+    const action = card.querySelector('[data-card-action]');
+    if (action) action.textContent = `View ${destination.dataset.label.toLowerCase()} ↗`;
+    card.querySelectorAll('[data-format-destination]').forEach(choice => {
+      const active = choice === destination;
+      choice.classList.toggle('is-active', active);
+      choice.setAttribute('aria-current', active ? 'true' : 'false');
+    });
+    const media = card.querySelector('.product-card-media');
+    media.querySelectorAll('.badge').forEach(badge => badge.remove());
+    if (destination.dataset.available !== 'true') {
+      const badge = document.createElement('span'); badge.className = 'badge'; badge.textContent = 'Sold out'; media.append(badge);
+    }
+    let image = media.querySelector('img');
+    let placeholder = media.querySelector('.card-placeholder');
+    if (destination.dataset.image) {
+      if (!image) { image = document.createElement('img'); image.loading = 'lazy'; media.prepend(image); }
+      image.src = destination.dataset.image; image.removeAttribute('srcset'); image.alt = `${card.dataset.name} — ${destination.dataset.label}`; image.hidden = false;
+      if (placeholder) placeholder.hidden = true;
+    } else {
+      if (image) image.hidden = true;
+      if (!placeholder) { placeholder = document.createElement('div'); placeholder.className = 'card-placeholder'; placeholder.textContent = 'OUDIE'; placeholder.setAttribute('aria-hidden', 'true'); media.prepend(placeholder); }
+      placeholder.hidden = false;
+    }
+  }
+  function initializeCards(scope = document) {
+    scope.querySelectorAll('[data-scent-result]').forEach(card => {
+      if (initialized.has(card)) return;
+      initialized.add(card);
+      const choices = [...card.querySelectorAll('[data-format-destination]')];
+      const initial = choices.find(choice => choice.dataset.url === card.querySelector('[data-card-link]').getAttribute('href'));
+      card.defaultFormat = initial;
+      if (initial) { initial.classList.add('is-active'); initial.setAttribute('aria-current', 'true'); }
+      choices.forEach(choice => choice.addEventListener('click', event => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault(); selectCardFormat(card, choice);
+      }));
+    });
+  }
   function initializeDiscovery(scope = document) {
     scope.querySelectorAll('[data-discovery]').forEach(root => {
       if (initialized.has(root)) return;
       initialized.add(root);
-      const form = root.querySelector('[data-discovery-controls]');
+      const controls = root.querySelector('[data-discovery-controls]');
+      const form = root.querySelector('[data-filter-form]');
       const search = root.querySelector('[data-discovery-search]');
       const format = root.querySelector('[data-discovery-format]');
       const classification = root.querySelector('[data-discovery-class]');
       const cards = [...root.querySelectorAll('[data-scent-result]')];
-      const snapshots = new Map();
+      const dialog = root.querySelector('[data-filter-dialog]');
+      const open = root.querySelector('[data-filter-open]');
+      const mobile = matchMedia('(max-width: 759px)');
+      const active = root.querySelector('[data-discovery-active]');
       const classes = new Set();
-      cards.forEach(card => {
-        card.dataset.classification.split('|').filter(Boolean).forEach(value => classes.add(value));
-        const link = card.querySelector('.product-card-link'), price = card.querySelector('[data-card-price]'), image = card.querySelector('.product-card-media img'), article = card.querySelector('article');
-        snapshots.set(card, {link, price, image, article, url: link.getAttribute('href'), priceText: price.textContent, src: image?.getAttribute('src'), srcset: image?.getAttribute('srcset'), badge: card.querySelector('.badge')?.cloneNode(true)});
-      });
+      cards.forEach(card => card.dataset.classification.split('|').filter(Boolean).forEach(value => classes.add(value)));
       [...classes].sort().forEach(value => classification.add(new Option(value.replace(/\b\w/g, letter => letter.toUpperCase()), value)));
-      const params = new URLSearchParams(location.search);
-      if ([...format.options].some(option => option.value === params.get('format'))) format.value = params.get('format');
-      if ([...classification.options].some(option => option.value === params.get('classification'))) classification.value = params.get('classification');
-      function sync() {
-        const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-        let count = 0;
-        cards.forEach(card => {
-          const state = snapshots.get(card);
-          const destination = format.value ? [...card.querySelectorAll('[data-format-destination]')].find(el => el.dataset.format === format.value && el.dataset.available === 'true') : null;
-          const matches = terms.every(term => card.dataset.search.includes(term)) && (!classification.value || card.dataset.classification.split('|').includes(classification.value)) && (!format.value || !!destination);
-          card.hidden = !matches;
-          if (!matches) return;
-          count++;
-          state.link.href = destination ? destination.dataset.url : state.url;
-          state.price.textContent = destination ? `${destination.dataset.label} · ${destination.dataset.price}` : state.priceText;
-          card.querySelectorAll('.badge').forEach(el => el.remove());
-          if (!destination && state.badge) card.querySelector('.product-card-media').append(state.badge.cloneNode(true));
-          if (state.image) {
-            if (destination?.dataset.image) { state.image.src = destination.dataset.image; state.image.removeAttribute('srcset'); }
-            else { state.image.setAttribute('src', state.src); if (state.srcset) state.image.setAttribute('srcset', state.srcset); else state.image.removeAttribute('srcset'); }
-          }
-        });
-        root.querySelector('[data-discovery-count]').textContent = `${count} ${count === 1 ? 'scent' : 'scents'}`;
-        root.querySelector('[data-discovery-empty]').hidden = count !== 0;
+      let appliedFormat = '', appliedClass = '';
+      function restore() {
+        const params = new URLSearchParams(location.search);
+        search.value = params.get('scent_query') || root.dataset.initialQuery || '';
+        format.value = [...format.options].some(option => option.value === params.get('scent_format')) ? params.get('scent_format') : '';
+        classification.value = [...classification.options].some(option => option.value === params.get('classification')) ? params.get('classification') : '';
+        appliedFormat = format.value; appliedClass = classification.value;
       }
       function updateUrl() {
         const url = new URL(location.href);
-        for (const [key, value] of [['format', format.value], ['classification', classification.value]]) {
+        for (const [key, value] of [['scent_format', appliedFormat], ['classification', appliedClass], ['scent_query', search.value.trim()]]) {
           if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
         }
         history.replaceState(null, '', url);
       }
-      form.hidden = false;
-      form.addEventListener('submit', event => event.preventDefault());
-      search.addEventListener('input', sync);
-      [format, classification].forEach(control => control.addEventListener('change', () => { sync(); updateUrl(); }));
-      function clear() { search.value = ''; format.value = ''; classification.value = ''; sync(); updateUrl(); search.focus(); }
+      function sync() {
+        const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        let count = 0;
+        cards.forEach(card => {
+          const destination = appliedFormat ? [...card.querySelectorAll('[data-format-destination]')].find(el => el.dataset.format === appliedFormat && el.dataset.eligible === 'true') : card.defaultFormat;
+          const matches = terms.every(term => card.dataset.search.includes(term)) && (!appliedClass || card.dataset.classification.split('|').includes(appliedClass)) && (!appliedFormat || !!destination);
+          card.hidden = !matches;
+          if (!matches) return;
+          count++; if (destination) selectCardFormat(card, destination);
+        });
+        root.querySelector('[data-discovery-count]').textContent = `${count} ${count === 1 ? 'scent' : 'scents'}`;
+        root.querySelector('[data-discovery-empty]').hidden = count !== 0;
+        active.replaceChildren();
+        const filters = [['Search', search.value.trim(), () => { search.value = ''; }], ['Format', appliedFormat && format.selectedOptions[0].textContent, () => { appliedFormat = ''; format.value = ''; }], ['Scent type', appliedClass, () => { appliedClass = ''; classification.value = ''; }]];
+        filters.forEach(([label, value, remove]) => {
+          if (!value) return;
+          const button = document.createElement('button'); button.type = 'button'; button.className = 'filter-token'; button.textContent = `${label}: ${value} ×`; button.setAttribute('aria-label', `Remove ${label.toLowerCase()} filter ${value}`);
+          button.addEventListener('click', () => { remove(); sync(); updateUrl(); search.focus(); }); active.append(button);
+        });
+        if (active.children.length) { const clearButton = document.createElement('button'); clearButton.type = 'button'; clearButton.className = 'text-link'; clearButton.textContent = 'Clear all'; clearButton.addEventListener('click', clear); active.append(clearButton); }
+      }
+      function clear() { search.value = ''; format.value = ''; classification.value = ''; appliedFormat = ''; appliedClass = ''; sync(); updateUrl(); if (!dialog.open) search.focus(); }
+      function relocate() {
+        if (dialog.open) dialog.close();
+        (mobile.matches ? root.querySelector('[data-filter-slot]') : root.querySelector('[data-filter-home]')).append(form);
+      }
+      controls.hidden = false;
+      restore(); relocate(); sync();
+      mobile.addEventListener('change', relocate);
+      window.addEventListener('popstate', () => { restore(); sync(); });
+      open.addEventListener('click', () => { format.value = appliedFormat; classification.value = appliedClass; dialog.showModal(); });
+      root.querySelector('[data-filter-close]').addEventListener('click', () => dialog.close());
+      dialog.addEventListener('close', () => open.focus());
+      dialog.addEventListener('click', event => { if (event.target === dialog) { const bounds = dialog.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close(); } });
+      form.addEventListener('submit', event => { event.preventDefault(); appliedFormat = format.value; appliedClass = classification.value; sync(); updateUrl(); if (dialog.open) dialog.close(); });
       form.addEventListener('reset', event => { event.preventDefault(); clear(); });
+      search.addEventListener('input', () => { sync(); updateUrl(); });
+      [format, classification].forEach(control => control.addEventListener('change', () => { if (!mobile.matches) { appliedFormat = format.value; appliedClass = classification.value; sync(); updateUrl(); } }));
       root.querySelector('[data-discovery-clear]').addEventListener('click', clear);
-      sync();
     });
   }
 
@@ -376,7 +431,7 @@
       menu.addEventListener('toggle', () => { if (menu.open) closeCart(); });
     });
   }
-  function initialize(scope = document) { initializeProducts(scope); initializeDiscovery(scope); initializeCart(scope); }
+  function initialize(scope = document) { initializeProducts(scope); initializeCards(scope); initializeDiscovery(scope); initializeCart(scope); }
   initialize();
   document.addEventListener('shopify:section:load', event => initialize(event.target));
   document.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });

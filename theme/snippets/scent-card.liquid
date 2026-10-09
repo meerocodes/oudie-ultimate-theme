@@ -1,6 +1,7 @@
 {% doc %}
   Shared canonical scent resolver. Modes: card (default), links, options.
   @param {metaobject} scent
+  @param {product[]} [preferred_products] - Category products for initial selection.
   @param {product[]} products
   @param {string} [query]
   @param {string} [mode]
@@ -11,6 +12,8 @@
   assign preferred_product = nil
   assign preferred_variant = nil
   assign best_rank = 99
+  assign core_choices = ''
+  assign accessory_choices = ''
   assign formats = ''
   assign allowed_types = 'Extrait de Parfum|Oil Blends|Mists|Car Diffusers|Car Fresheners|Beard Care|Bakhoor' | split: '|'
 %}
@@ -46,6 +49,18 @@
             when 'Mists'
               assign rank = 2
           endcase
+          assign is_preferred = true
+          if preferred_products != blank
+            assign is_preferred = false
+            for preferred in preferred_products
+              if preferred.id == format_product.id
+                assign is_preferred = true
+              endif
+            endfor
+            unless is_preferred
+              assign rank = rank | plus: 20
+            endunless
+          endif
           unless match.available
             assign rank = rank | plus: 10
           endunless
@@ -60,7 +75,8 @@
           {% elsif mode == 'options' %}
             <option value="{{ match.url }}" {% if current_product.id == format_product.id %}selected{% endif %}>{{ label }} — {{ match.price | money }}{% unless match.available %} — Sold out{% endunless %}</option>
           {% else %}
-            <span hidden data-format-destination data-format="{{ format_product.type | escape }}" data-url="{{ match.url }}" data-label="{{ label | escape }}" data-price="{{ match.price | money | escape }}" data-available="{{ match.available }}" data-image="{% if match.featured_media.preview_image %}{{ match.featured_media.preview_image | image_url: width: 700 }}{% elsif format_product.featured_image %}{{ format_product.featured_image | image_url: width: 700 }}{% endif %}"></span>
+            {% capture choice %}            <a class="card-format" href="{{ match.url }}" data-format-destination data-eligible="{{ is_preferred }}" data-format="{{ format_product.type | escape }}" data-url="{{ match.url }}" data-label="{{ label | escape }}" data-price="{{ match.price | money | escape }}" data-available="{{ match.available }}" data-image="{% if match.featured_media.preview_image %}{{ match.featured_media.preview_image | image_url: width: 700 }}{% elsif format_product.featured_image %}{{ format_product.featured_image | image_url: width: 700 }}{% endif %}"> {{ label }}{% unless match.available %}<span class="format-stock">Sold out</span>{% endunless %}</a>{% endcapture %}
+            {% if format_product.type == 'Extrait de Parfum' or format_product.type == 'Oil Blends' or format_product.type == 'Mists' %}{% assign core_choices = core_choices | append: choice %}{% else %}{% assign accessory_choices = accessory_choices | append: choice %}{% endif %}
           {% endif %}
         {% endif %}
       {% endunless %}
@@ -76,7 +92,6 @@
   {% assign search_text = search_text | downcase %}
   {% assign search_matches = true %}{% assign query_words = query | downcase | split: ' ' %}{% for word in query_words %}{% unless search_text contains word %}{% assign search_matches = false %}{% endunless %}{% endfor %}
   <div {% unless search_matches %}hidden{% endunless %} data-scent-result data-name="{{ scent.name.value | escape }}" data-classification="{{ scent.classification.value | join: '|' | downcase | escape }}" data-search="{{ scent.name.value | downcase | escape }} {{ scent.legacy_names.value | join: ' ' | downcase | escape }} {% unless scent.system.handle == 'oudie-bella' %}{{ scent.top_notes.value | join: ' ' | downcase | escape }} {{ scent.heart_notes.value | join: ' ' | downcase | escape }} {{ scent.base_notes.value | join: ' ' | downcase | escape }}{% endunless %} {{ labels | strip | downcase | escape }}">
-    {% render 'product-card', product: preferred_product, variant: preferred_variant, scent: scent, card_price: preferred_variant.price, formats: labels, price_label: price_label, scent_card: true %}
-    {{ destinations }}
+    {% render 'product-card', product: preferred_product, variant: preferred_variant, scent: scent, card_price: preferred_variant.price, price_label: price_label, scent_card: true, core_choices: core_choices, accessory_choices: accessory_choices %}
   </div>
 {% endif %}

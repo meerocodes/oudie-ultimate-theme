@@ -3,7 +3,8 @@
     "main": {
       "type": "experiences",
       "settings": {
-        "image": "shopify://shop_images/IMG_3831.jpg"
+        "service_kind": "corporate",
+        "image": "shopify://shop_images/IMG_3835.jpg"
       }
     }
   },

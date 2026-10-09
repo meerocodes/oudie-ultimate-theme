@@ -8,9 +8,10 @@
     </div>
   </div>
   <div class="page-width section-tight">
-    {% if collection.handle == 'all-oudie' and settings.fragrance_products != blank %}
-      {% render 'scent-grid', id: section.id %}
-      <h2 class="section-title supporting-title">Samples & more</h2>
+    {% assign scent_collections = 'all-oudie|eau-de-parfume-50ml|oil-blends|elegnat-rubs|oudie-premium|sprays|car-diffuser|elegant-car-freshners|scents-of-history|best-sellers-1|new-arrivals' | split: '|' %}
+    {% if scent_collections contains collection.handle and settings.fragrance_products != blank %}
+      {% render 'scent-grid', id: section.id, products: collection.products %}
+      {% if collection.handle == 'all-oudie' %}<h2 class="section-title supporting-title">Samples & more</h2>{% endif %}
       <div class="product-grid">
         {% for product in collection.products %}
           {% assign has_scent = false %}

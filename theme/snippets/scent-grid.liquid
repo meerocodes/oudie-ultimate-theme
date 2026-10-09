@@ -1,25 +1,32 @@
 {% doc %}
   Deduplicated scent discovery from the configured complete fragrance catalog.
+  @param {product[]} [products] - Category scent eligibility.
   @param {string} id
   @param {string} [query]
 {% enddoc %}
+{% assign discovery_products = products | default: settings.fragrance_products %}
 <div data-discovery data-initial-query="{{ query | escape }}">
-  <form class="discovery-controls" data-discovery-controls hidden>
-    <div class="field"><label for="ScentSearch-{{ id }}">Find a scent</label><input id="ScentSearch-{{ id }}" type="search" value="{{ query | escape }}" placeholder="Name or note" data-discovery-search></div>
-    <div class="field"><label for="ScentFormat-{{ id }}">Format</label><select id="ScentFormat-{{ id }}" data-discovery-format><option value="">All formats</option>{% assign seen_types = '' %}{% for p in settings.fragrance_products %}{% assign has_scent = false %}{% for v in p.variants %}{% if v.metafields.custom.scent.value != blank or p.metafields.custom.scent.value != blank %}{% assign has_scent = true %}{% endif %}{% endfor %}{% assign type_token = p.type | prepend: '|' | append: '|' %}{% if has_scent %}{% unless seen_types contains type_token %}<option value="{{ p.type | escape }}">{% render 'format-label', product: p %}</option>{% assign seen_types = seen_types | append: type_token %}{% endunless %}{% endif %}{% endfor %}</select></div>
-    <div class="field"><label for="ScentClass-{{ id }}">Classification</label><select id="ScentClass-{{ id }}" data-discovery-class><option value="">All classifications</option></select></div>
-    <button class="text-link discovery-reset" type="reset">Clear filters</button>
-  </form>
+  <div class="discovery-controls" data-discovery-controls hidden>
+        <div class="field discovery-search"><label for="ScentSearch-{{ id }}">Find a scent</label><input id="ScentSearch-{{ id }}" type="search" value="{{ query | escape }}" placeholder="Name or note" data-discovery-search></div>
+    <button type="button" class="btn btn--ghost discovery-filter-open" data-filter-open>Filters</button>
+    <div class="discovery-filter-home" data-filter-home><form class="discovery-filter-fields" data-filter-form>
+
+    <div class="field"><label for="ScentFormat-{{ id }}">Format</label><select class="select" id="ScentFormat-{{ id }}" data-discovery-format><option value="">All formats</option>{% assign seen_types = '' %}{% for p in discovery_products %}{% assign has_scent = false %}{% for v in p.variants %}{% if v.metafields.custom.scent.value != blank or p.metafields.custom.scent.value != blank %}{% assign has_scent = true %}{% endif %}{% endfor %}{% assign type_token = p.type | prepend: '|' | append: '|' %}{% if has_scent %}{% unless seen_types contains type_token %}<option value="{{ p.type | escape }}">{% render 'format-label', product: p %}</option>{% assign seen_types = seen_types | append: type_token %}{% endunless %}{% endif %}{% endfor %}</select></div>
+    <div class="field"><label for="ScentClass-{{ id }}">Scent type</label><select class="select" id="ScentClass-{{ id }}" data-discovery-class><option value="">All scent types</option></select></div>
+    <div class="filter-sheet-actions"><button class="text-link" type="reset">Clear filters</button><button class="btn" type="submit">Show results</button></div>
+  </form></div></div>
+  <dialog class="filter-sheet" data-filter-dialog aria-labelledby="FilterTitle-{{ id }}"><div class="filter-sheet-heading"><h2 id="FilterTitle-{{ id }}">Filter scents</h2><button type="button" class="btn btn--ghost" data-filter-close aria-label="Close filters">Close</button></div><div data-filter-slot></div></dialog>
+  <div class="discovery-active" data-discovery-active></div>
   <p class="discovery-count" data-discovery-count aria-live="polite"></p>
   <div class="product-grid" data-discovery-grid>
     {% assign seen_scents = '' %}
-    {% for p in settings.fragrance_products %}
+    {% for p in discovery_products %}
       {% for v in p.variants %}
         {% assign scent = v.metafields.custom.scent.value | default: p.metafields.custom.scent.value %}
         {% if scent != blank %}
           {% assign token = scent.system.id | prepend: '|' | append: '|' %}
           {% unless seen_scents contains token %}
-            {% render 'scent-card', scent: scent, products: settings.fragrance_products, query: query %}
+            {% render 'scent-card', scent: scent, products: settings.fragrance_products, preferred_products: discovery_products, query: query %}
             {% assign seen_scents = seen_scents | append: token %}
           {% endunless %}
         {% endif %}

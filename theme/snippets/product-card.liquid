@@ -4,7 +4,8 @@
   @param {variant} [variant] - Exact matching variant.
   @param {metaobject} [scent] - Canonical scent.
   @param {number} [card_price] - Native price in minor units.
-  @param {string} [formats] - Available format labels.
+  @param {string} [core_choices] - Primary format links.
+  @param {string} [accessory_choices] - Other format links.
   @param {string} [price_label] - Destination format label.
   @param {boolean} [scent_card] - Render scent-first content.
 {% enddoc %}
@@ -43,17 +44,17 @@
   endif
 %}
 <article class="product-card{% if scent_card %} product-card--scent{% endif %}">
-  <a class="product-card-link" href="{{ card_url }}">
+  <a class="product-card-link" data-card-link href="{{ card_url }}">
     <div class="product-card-media">
       {% if image != blank %}{{ image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '240,360,480,700,900', sizes: '(min-width: 990px) 25vw, (min-width: 760px) 33vw, 50vw', alt: image_alt }}{% else %}<div class="card-placeholder" aria-hidden="true"><span>OUDIE</span></div>{% endif %}
       {% unless available %}<span class="badge">{{ 'cards.sold_out' | t }}</span>{% endunless %}
     </div>
+  </a>
     <div class="product-card-info">
-      <h3 class="product-card-title">{{ card_name | escape }}</h3>
+      <h3 class="product-card-title"><a data-card-link href="{{ card_url }}">{{ card_name | escape }}</a></h3>
       {% if notes != blank %}<p class="product-card-notes">{{ notes | escape }}</p>{% endif %}
       <p class="product-card-price" data-card-price>{% if price_label != blank %}{{ price_label | strip | escape }} · {% endif %}{% if from_price %}{{ 'cards.from' | t }} {% endif %}{{ price | money }}</p>
-      {% if formats != blank %}<p class="product-card-formats">{{ formats | escape }}</p>{% endif %}
-      {% if scent_card %}<span class="product-card-action">{{ 'cards.discover' | t }} <span aria-hidden="true">↗</span></span>{% endif %}
+      {% if scent_card %}<div class="card-formats"><p class="card-formats-label">Available in</p><div class="card-format-row">{{ core_choices }}{% if core_choices == blank %}{{ accessory_choices }}{% endif %}</div>{% if accessory_choices != blank and core_choices != blank %}<details class="card-more"><summary>More formats</summary><div class="card-format-row">{{ accessory_choices }}</div></details>{% endif %}</div>{% endif %}
+      {% if scent_card %}<a class="product-card-action" data-card-link data-card-action href="{{ card_url }}">View {{ price_label | strip | downcase }} <span aria-hidden="true">↗</span></a>{% endif %}
     </div>
-  </a>
 </article>

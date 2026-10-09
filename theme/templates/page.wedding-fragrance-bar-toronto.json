@@ -3,6 +3,7 @@
     "main": {
       "type": "experiences",
       "settings": {
+        "service_kind": "wedding",
         "image": "shopify://shop_images/IMG_3831.jpg"
       }
     }

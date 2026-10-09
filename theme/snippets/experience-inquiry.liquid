@@ -1,0 +1,23 @@
+{% doc %}
+Native inquiry form. No automated pricing or booking.
+@param {string} id
+@param {string} kind
+{% enddoc %}
+<section class="page-width section" id="ExperienceInquiry-{{ id }}"><div class="inquiry-panel"><div class="eyebrow">Your occasion. Your OUDIE.</div><h2 class="section-title">Tell us what you have in mind.</h2><p>Share what you know. The team will confirm availability and discuss the details with you.</p>
+{% assign form_id = 'OudBarInquiry-' | append: id %}{% form 'contact', id: form_id %}
+{% if form.posted_successfully? %}<p class="form-success" role="status" tabindex="-1">Thank you. Your inquiry has been sent to OUDIE.</p>{% endif %}{% if form.errors %}<div class="form-errors" role="alert">{{ form.errors | default_errors }}</div>{% endif %}
+<input type="hidden" name="contact[topic]" value="OUDIE {{ kind | escape }} experience inquiry">
+<div class="form-grid">
+<div class="field"><label for="Name-{{ id }}">Name *</label><input id="Name-{{ id }}" autocomplete="name" required name="contact[name]" value="{{ form.name | escape }}"></div>
+<div class="field"><label for="Email-{{ id }}">Email *</label><input id="Email-{{ id }}" autocomplete="email" required type="email" name="contact[email]" value="{{ form.email | escape }}"></div>
+<div class="field"><label for="Phone-{{ id }}">Phone (optional)</label><input id="Phone-{{ id }}" autocomplete="tel" type="tel" name="contact[phone]"></div>
+<div class="field"><label for="Type-{{ id }}">Occasion *</label><select id="Type-{{ id }}" class="select" name="contact[event_type]" required><option{% if kind == 'wedding' %} selected{% endif %}>Wedding</option><option{% if kind == 'corporate' %} selected{% endif %}>Corporate event</option><option{% if kind == 'private' %} selected{% endif %}>Private workshop</option><option>Other / help me choose</option></select></div>
+<div class="field"><label for="City-{{ id }}">City / location *</label><input id="City-{{ id }}" required name="contact[event_location]"></div>
+<div class="field"><label for="Guests-{{ id }}">Approximate guests (optional)</label><input id="Guests-{{ id }}" type="number" min="1" name="contact[guests]"></div>
+<div class="field"><label for="Date-{{ id }}">Preferred date (optional)</label><input id="Date-{{ id }}" type="date" name="contact[event_date]"></div>
+<div class="field"><label for="Time-{{ id }}">Preferred time (optional)</label><input id="Time-{{ id }}" type="time" name="contact[event_time]"></div>
+<div class="field"><label for="Venue-{{ id }}">Venue (optional)</label><input id="Venue-{{ id }}" name="contact[venue]"></div>
+<div class="field"><label for="Bottles-{{ id }}">Bottles in mind (optional)</label><input id="Bottles-{{ id }}" type="number" min="1" name="contact[bottles]"></div>
+<div class="field"><label for="Scents-{{ id }}">Number of scents (optional)</label><input id="Scents-{{ id }}" type="number" min="1" name="contact[scents]"></div>
+<div class="field full"><label for="Notes-{{ id }}">Your event / questions (optional)</label><textarea id="Notes-{{ id }}" class="textarea" name="contact[body]">{{ form.body | escape }}</textarea></div></div>
+<p class="inquiry-note">An inquiry is not a confirmed booking.</p><button class="btn" type="submit">Send inquiry</button>{% endform %}</div></section>

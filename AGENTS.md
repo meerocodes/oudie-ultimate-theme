@@ -49,7 +49,7 @@ Do not parse legacy strings if structured scent data exists.
 
 ## Shipping / claims
 
-Known free shipping threshold: **CAD $120** for qualifying Canada & USA orders. Do not hardcode dispatch speed unless explicitly verified.
+Verified checkout free standard shipping thresholds: **CAD $120 for Canada** and **CAD $162 for the USA**, for qualifying merchandise (October 9, 2026). Keep theme settings aligned with Shopify delivery profiles; USD is converted using Shopify’s native presentment rate. Do not hardcode dispatch speed unless explicitly verified.
 
 Do not globally hardcode:
 - 40% concentration;

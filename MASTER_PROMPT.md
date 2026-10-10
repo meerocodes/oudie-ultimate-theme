@@ -47,7 +47,9 @@ The finished site should feel like a premium niche fragrance house and should sc
 
 Top-level navigation:
 
-**Shop | Explore Scents | Samples | Experiences | Oud Guide | Our Story | Search | Bag**
+**Shop | Explore Scents | Samples | Experiences | Our Story | Search | Bag**
+
+Oud Guide belongs in the homepage reading section and footer. Read `PROJECT_STATE.md` and `docs/20_GALLERY_CART_POPUP_BATCH.md` for the latest implemented behavior before following historical design targets.
 
 Primary fragrance browsing must be **scent-first**, not duplicate-card-by-format. A scent card should communicate one scent identity and its available formats, e.g.:
 

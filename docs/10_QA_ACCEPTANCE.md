@@ -75,7 +75,8 @@ Verify:
 - remove item;
 - subtotal;
 - free shipping progress;
-- threshold CAD $120;
+- verified thresholds: Canada CAD $120; USA CAD $162, with native USD conversion;
+- exclude tickets/non-shipping items and use exact discount allocations;
 - checkout button;
 - accelerated checkout compatibility;
 - empty state.

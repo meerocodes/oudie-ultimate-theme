@@ -14,24 +14,18 @@
 - Product descriptions were deliberately left untouched.
 - A pure scratch Shopify theme was created and is included under `theme/`.
 
-## What is NOT finished
+## Current state and remaining launch work
 
-The scratch theme is not the final design. It still needs:
+The latest implementation is uploaded to unpublished QA theme **155284832439**. Read `docs/20_GALLERY_CART_POPUP_BATCH.md` first; the dated batch sections below are historical records. Four Oud Guide articles are published globally. The live theme has not been published or replaced.
 
-- refined visual system;
-- stronger typography/spacing;
-- a bespoke homepage;
-- mature scent-first Shop;
-- stronger Scent Explorer;
-- polished PDP;
-- Judge.me integration verification;
-- cart refinement;
-- Experiences service pages;
-- Oud Guide content/templates;
-- structured data/schema;
-- full mobile QA;
-- accessibility/performance QA;
-- final SEO migration cleanup.
+Remaining launch gates:
+
+- Judge.me app-embed verification and real review rendering;
+- Bella, sample-count contradictions and legacy product-description claims already flagged for merchant review;
+- dedicated Experiences service-page approval/publication (three pages remain hidden);
+- end-to-end newsletter/inquiry delivery checks without test subscribers/messages in production;
+- disabling the legacy Pop Convert campaign/app embed at launch, after the native replacement is accepted;
+- final store-level accessibility, performance, market/discount edge cases and SEO launch review.
 
 ## Do not revive old approaches
 
@@ -48,3 +42,7 @@ Implemented the canonical scent catalog, perfume-first discovery, scent-preservi
 ## Category and content batch — October 8–9, 2026
 
 Restored category navigation; category-scoped canonical scent grids, clickable card formats, styled desktop filters and a mobile filter sheet are now uploaded to unpublished theme 155284832439. Expanded Experiences hub and three distinct service templates are implemented. Shopify contains three hidden service pages and four unpublished Oud Guide articles with SEO metadata. Native Shopify `scent_format` URLs survive reload. Local 119-layout checks and the real Madawi Oil card-to-cart flow pass. See `docs/19_CATEGORY_CONTENT_BATCH.md` for resource IDs, content, sources and evidence. Judge.me enablement, existing Pop Convert popup behavior, editorial approval/publication and final launch checks remain gates. No live theme or existing product descriptions were changed.
+
+## Gallery, shipping and native campaigns — October 9–10, 2026
+
+Implemented a mobile square PDP gallery with scent-specific thumbnails and accessible zoom, live shipping meters in both cart surfaces, native country selection, an editorial desktop Shop mega menu, homepage reading and footer-only Oud Guide navigation. Native popup campaigns support two editable slots with dates, weekdays, daily time windows, timezone, delay/scroll/desktop-exit triggers, audience/page/device rules and session/dismissal limits. Four existing Oud Guide articles were published and verified; no resources were duplicated. Checkout shipping was verified against active profiles: Canada CAD $120, USA CAD $162. Real USD checkout passed paid/free shipping checks; test cart was emptied. Local 119-layout regression and focused popup/discount/ticket/DST checks passed. Full configuration/evidence and remaining launch gates: `docs/20_GALLERY_CART_POPUP_BATCH.md`.

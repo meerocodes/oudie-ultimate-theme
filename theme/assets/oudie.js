@@ -81,16 +81,6 @@
         root.querySelector('.format-mobile').hidden = false;
         format.addEventListener('change', () => navigate(format.value, root));
       }
-      root.querySelectorAll('[data-gallery-image]').forEach(link => link.addEventListener('click', event => {
-        const image = root.querySelector('[data-primary-media] img');
-        if (!image) return;
-        event.preventDefault();
-        image.removeAttribute('srcset');
-        image.src = link.dataset.src;
-        image.alt = link.dataset.alt;
-        root.querySelectorAll('[data-gallery-image]').forEach(el => el.removeAttribute('aria-current'));
-        link.setAttribute('aria-current', 'true');
-      }));
       const native = root.querySelector('[data-variant-select]');
       if (!native) return;
       const records = [...native.options].map(option => ({
@@ -264,11 +254,14 @@
   }
 
   const cartRoot = () => document.querySelector('[data-cart-drawer]');
+  const mainCart = () => document.querySelector('[data-main-cart]');
+  const cartSections = () => ['cart-drawer', mainCart()?.dataset.cartSection].filter(Boolean);
   const cartUrl = path => `${window.Shopify?.routes?.root || '/'}${path}`;
   let cartBusy = false;
   let cartTrigger = null;
   function message(text, error = false) {
     const drawer = cartRoot(); if (!drawer) return;
+    if (error) { const mainError = mainCart()?.querySelector('[data-main-cart-error]'); if (mainError) { mainError.textContent = text; mainError.hidden = !text; } }
     const el = drawer.querySelector(error ? '[data-cart-error]' : '[data-cart-status]');
     el.textContent = text; el.hidden = !text;
   }
@@ -276,7 +269,7 @@
     cartBusy = value;
     const drawer = cartRoot(); if (!drawer) return;
     drawer.setAttribute('aria-busy', String(value));
-    drawer.querySelectorAll('[data-cart-quantity], [data-cart-remove], [name="checkout"]').forEach(el => {
+    document.querySelectorAll('[data-cart-drawer] [data-cart-quantity], [data-cart-drawer] [data-cart-remove], [data-cart-drawer] [name="checkout"], [data-main-cart] [data-cart-quantity], [data-main-cart] [data-cart-remove], [data-main-cart] [name="checkout"], [data-main-cart] [name="update"]').forEach(el => {
       if ('disabled' in el) el.disabled = value;
       el.setAttribute('aria-disabled', String(value));
     });
@@ -305,12 +298,29 @@
     }
     return true;
   }
+  function installMainCart(html) {
+    const root = mainCart(); if (!root || !html) return;
+    const content = new DOMParser().parseFromString(html, 'text/html').querySelector('[data-main-cart-content]');
+    if (!content) return;
+    const active = root.contains(document.activeElement) ? document.activeElement : null;
+    const key = active?.dataset.key;
+    root.querySelector('[data-main-cart-content]').replaceWith(content);
+    if (active) {
+      const replacement = [...root.querySelectorAll('[data-cart-quantity]')].find(el => key && el.dataset.key === key);
+      if (replacement) replacement.focus(); else { root.setAttribute('tabindex', '-1'); root.focus(); }
+    }
+  }
   async function refreshCart(sections) {
-    if (installCart(sections?.['cart-drawer'])) return;
-    const response = await request(`${cartUrl('')}?sections=cart-drawer`);
-    if (!response.ok) throw new Error('Your bag could not refresh. Open the full bag to check its contents.');
-    const data = await response.json();
-    if (!installCart(data['cart-drawer'])) throw new Error('Your bag could not refresh. Open the full bag to check its contents.');
+    let rendered = sections;
+    const mainId = mainCart()?.dataset.cartSection;
+    if (!rendered?.['cart-drawer'] || (mainId && !rendered?.[mainId])) {
+      const response = await request(`${cartUrl('')}?sections=${cartSections().join(',')}`);
+      if (!response.ok) throw new Error('Your bag could not refresh. Open the full bag to check its contents.');
+      rendered = await response.json();
+    }
+    if (!installCart(rendered['cart-drawer'])) throw new Error('Your bag could not refresh. Open the full bag to check its contents.');
+    if (mainId) installMainCart(rendered[mainId]);
+    document.dispatchEvent(new CustomEvent('oudie:cart-rendered'));
   }
   function openCart(trigger) {
     const drawer = cartRoot();
@@ -333,7 +343,7 @@
     try {
       const response = await request(cartUrl('cart/change.js'), {
         method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: key, quantity, sections: ['cart-drawer'], sections_url: location.pathname})
+        body: JSON.stringify({id: key, quantity, sections: cartSections(), sections_url: location.pathname})
       });
       const data = await response.json();
       if (!response.ok) throw new Error(typeof data.description === 'string' ? data.description : 'This quantity is unavailable.');
@@ -362,17 +372,17 @@
       return;
     }
     if (event.target.closest('[data-cart-close]')) { closeCart(); return; }
-    const remove = event.target.closest('[data-cart-drawer] [data-cart-remove]');
+    const remove = event.target.closest('[data-cart-drawer] [data-cart-remove], [data-main-cart] [data-cart-remove]');
     if (remove) { event.preventDefault(); if (!cartBusy) await changeCart(remove.dataset.key, 0); }
   });
   document.addEventListener('change', event => {
-    const quantity = event.target.closest('[data-cart-drawer] [data-cart-quantity]');
+    const quantity = event.target.closest('[data-cart-drawer] [data-cart-quantity], [data-main-cart] [data-cart-quantity]');
     if (!quantity) return;
     if (!quantity.checkValidity() || !Number.isInteger(Number(quantity.value))) { quantity.reportValidity(); return; }
     changeCart(quantity.dataset.key, Number(quantity.value));
   });
   document.addEventListener('keydown', event => {
-    const quantity = event.target.closest('[data-cart-drawer] [data-cart-quantity]');
+    const quantity = event.target.closest('[data-cart-drawer] [data-cart-quantity], [data-main-cart] [data-cart-quantity]');
     if (!quantity || event.key !== 'Enter') return;
     event.preventDefault();
     if (quantity.checkValidity() && Number.isInteger(Number(quantity.value))) changeCart(quantity.dataset.key, Number(quantity.value));
@@ -380,6 +390,10 @@
   });
   document.addEventListener('submit', async event => {
     const form = event.target;
+    if (form.closest('[data-main-cart]') && event.submitter?.name === 'update') {
+      event.preventDefault(); if (cartBusy) return; busy(true); message('', true);
+      try { const updates = Object.fromEntries([...form.querySelectorAll('[data-cart-quantity]')].map(input => [input.dataset.key, Number(input.value)])); const response = await request(cartUrl('cart/update.js'), {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({updates, sections: cartSections(), sections_url: location.pathname})}); const data = await response.json(); if (!response.ok) throw new Error(data.description || 'Could not update your bag.'); await refreshCart(data.sections); } catch (error) { message(error.message, true); } finally { busy(false); } return;
+    }
     const product = form.closest('[data-product-root]');
     // Only intercept Add to bag; Shopify's accelerated checkout remains native.
     if (!product || !event.submitter?.matches('[data-atc]') || !cartRoot()?.showModal) return;
@@ -390,7 +404,7 @@
     const errorEl = product.querySelector('[data-product-error]');
     errorEl.hidden = true;
     const payload = new FormData(form);
-    payload.set('sections', 'cart-drawer'); payload.set('sections_url', location.pathname);
+    payload.set('sections', cartSections().join(',')); payload.set('sections_url', location.pathname);
     button.disabled = true; button.textContent = 'Adding…'; busy(true);
     let accepted = false;
     try {

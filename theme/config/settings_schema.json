@@ -69,6 +69,13 @@
         "label": "Show shipping progress",
         "default": false,
         "info": "Enable after confirming the CAD threshold and eligible merchandise with your shipping policy."
+      },
+      {
+        "type": "text",
+        "id": "free_shipping_threshold_us",
+        "label": "USA free shipping minimum (CAD)",
+        "default": "162",
+        "info": "Match the USA shipping rate minimum in Shopify."
       }
     ]
   }

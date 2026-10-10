@@ -3,6 +3,7 @@
   <p class="cart-error" data-cart-error role="alert" hidden></p>
   <div data-cart-content data-count="{{ cart.item_count }}">
     <div class="cart-drawer-head"><h2 id="CartDrawerTitle">Your bag <span>({{ cart.item_count }})</span></h2><button class="cart-close" type="button" data-cart-close aria-label="Close bag" autofocus>×</button></div>
+    {% render 'country-selector', context: 'drawer' %}
     {% if cart.item_count == 0 %}
       <div class="empty-state"><p>Your bag is empty.</p><a class="btn" href="{{ pages['our-scents'].url | default: routes.all_products_collection_url }}">Find your scent</a></div>
     {% else %}

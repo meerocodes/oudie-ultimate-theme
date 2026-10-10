@@ -39,6 +39,12 @@
     "experience": {
       "type": "home-experience",
       "settings": {}
+    },
+    "guide": {
+      "type": "home-guide",
+      "settings": {
+        "blog": "oud-guide"
+      }
     }
   },
   "order": [
@@ -46,6 +52,7 @@
     "products",
     "intro",
     "sample",
-    "experience"
+    "experience",
+    "guide"
   ]
 }

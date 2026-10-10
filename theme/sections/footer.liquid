@@ -6,8 +6,9 @@
     </div>
     <div><div class="eyebrow">Shop</div><div class="footer-links"><a href="/collections/all-oudie">All products</a><a href="/pages/our-scents">Scent directory</a><a href="/products/sample-pack-1-of-each-scent">Samples</a></div></div>
     <div><div class="eyebrow">Experience</div><div class="footer-links"><a href="/pages/oudie-experiences">Oud Bar</a><a href="/pages/our-mission">Our story</a><a href="/pages/contact">Contact</a></div></div>
-    <div><div class="eyebrow">Follow</div><div class="footer-links"><a href="https://www.instagram.com/oudie.ca/">Instagram</a></div></div>
+    <div><div class="eyebrow">Read & follow</div><div class="footer-links">{% if blogs['oud-guide'].articles.size > 0 %}<a href="{{ blogs['oud-guide'].url }}">Oud Guide</a>{% endif %}<a href="https://www.instagram.com/oudie.ca/">Instagram</a></div></div>
   </div>
+  <div class="page-width footer-country">{% render 'country-selector', context: 'footer' %}</div>
   <div class="page-width footer-bottom">© {{ 'now' | date: '%Y' }} OUDIE. {{ powered_by_link }}</div>
 </footer>
 {% schema %}{"name":"Footer","settings":[]}{% endschema %}

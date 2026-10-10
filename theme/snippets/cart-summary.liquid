@@ -1,13 +1,48 @@
 {% doc %}
   Native cart totals and qualified shipping information.
 {% enddoc %}
+{% liquid
+  assign shipping_country = localization.country.iso_code
+  assign threshold = 0
+  assign country_name = ''
+  if shipping_country == 'CA'
+    assign threshold = settings.free_shipping_threshold | times: 100
+    assign country_name = 'Canada'
+  elsif shipping_country == 'US'
+    assign threshold = settings.free_shipping_threshold_us | times: 100
+    assign country_name = 'USA'
+  endif
+  assign eligible_total = 0
+  for item in cart.items
+    if item.requires_shipping
+      unless item.product.template_suffix == 'workshop' or item.product.template_suffix == 'oud-and-stones'
+      assign merchandise_total = item.final_line_price
+      if item.discount_allocations.size > 0
+        assign merchandise_total = item.original_line_price
+        for allocation in item.discount_allocations
+          assign merchandise_total = merchandise_total | minus: allocation.amount
+        endfor
+      endif
+      assign merchandise_total = merchandise_total | at_least: 0
+      assign eligible_total = eligible_total | plus: merchandise_total
+      endunless
+    endif
+  endfor
+  assign eligible_total = eligible_total | at_most: cart.total_price
+  assign remaining = threshold | minus: eligible_total | at_least: 0
+  assign percent = 0
+  if threshold > 0
+    assign percent = eligible_total | times: 100.0 | divided_by: threshold | at_least: 0 | at_most: 100
+  endif
+%}
 {% if cart.requires_shipping %}
-  {% assign threshold = settings.free_shipping_threshold | times: 100 %}
-  {% if settings.shipping_progress_enabled and cart.currency.iso_code == 'CAD' and threshold > 0 %}
-    {% assign remaining = threshold | minus: cart.total_price %}
-    {% assign percent = cart.total_price | times: 100.0 | divided_by: threshold | at_most: 100 %}
-    <div class="shipping-progress"><p>{% if remaining > 0 %}{% assign amount = remaining | money_with_currency %}{{ 'commerce.shipping_remaining' | t: amount: amount }}{% else %}{{ 'commerce.shipping_reached' | t }}{% endif %}</p><p>{{ 'commerce.shipping_eligibility' | t }}</p><div class="progress-track" role="progressbar" aria-label="Free shipping threshold" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ percent | round }}"><div class="progress-fill" style="width:{{ percent }}%"></div></div></div>
-  {% else %}<p class="purchase-shipping">{{ 'commerce.shipping_policy' | t: threshold: settings.free_shipping_threshold }}</p>{% endif %}
+  {% if settings.shipping_progress_enabled and threshold > 0 %}
+    <div class="shipping-progress" data-shipping-meter data-threshold="{{ threshold }}" data-subtotal="{{ eligible_total }}" data-currency="{{ cart.currency.iso_code }}" data-country="{{ country_name }}" data-base-currency="{{ shop.currency }}">
+      <p class="shipping-progress-message" data-shipping-message role="status">{% if cart.currency.iso_code == 'CAD' %}{% if remaining > 0 %}You’re {{ remaining | money_with_currency }} away from free standard shipping to {{ country_name }}.{% else %}Free standard shipping unlocked for {{ country_name }}.{% endif %}{% else %}Free standard shipping to {{ country_name }} from CAD ${{ threshold | divided_by: 100 }}.{% endif %}</p>
+      <div class="progress-track" data-shipping-track role="progressbar" aria-label="Free standard shipping to {{ country_name }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{% if cart.currency.iso_code == 'CAD' %}{{ percent | round }}{% else %}0{% endif %}"{% unless cart.currency.iso_code == 'CAD' %} hidden{% endunless %}><div class="progress-fill" data-shipping-fill style="width:{% if cart.currency.iso_code == 'CAD' %}{{ percent }}{% else %}0{% endif %}%"></div></div>
+      <p class="shipping-progress-note">For qualifying merchandise. Delivery address and eligibility are confirmed at checkout.</p>
+    </div>
+  {% else %}<p class="purchase-shipping">{% render 'shipping-policy' %}</p>{% endif %}
 {% endif %}
 {% for discount in cart.cart_level_discount_applications %}<div class="cart-discount">{{ discount.title | escape }} (−{{ discount.total_allocated_amount | money }})</div>{% endfor %}
 <div class="cart-total"><span>Subtotal</span><span>{{ cart.total_price | money_with_currency }}</span></div>

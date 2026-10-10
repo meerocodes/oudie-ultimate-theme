@@ -5,7 +5,7 @@
       <div class="drawer-overlay" data-menu-overlay></div>
       <div class="mobile-drawer" id="MenuPanel-{{ section.id }}" aria-labelledby="MenuTitle-{{ section.id }}" data-menu-panel>
         <div class="drawer-head"><span class="eyebrow" id="MenuTitle-{{ section.id }}">{{ 'navigation.discover' | t }}</span><button type="button" class="drawer-close" data-menu-close aria-label="{{ 'navigation.close' | t }}">×</button></div>
-        <nav aria-label="{{ 'navigation.primary' | t }}"><ul class="drawer-nav">{% render 'header-links', menu: section.settings.menu %}</ul></nav>
+        <nav aria-label="{{ 'navigation.primary' | t }}"><ul class="drawer-nav">{% render 'header-links', menu: section.settings.menu, feature_product: section.settings.feature_product, feature_image: section.settings.feature_image, feature_heading: section.settings.feature_heading %}</ul></nav>
         <form class="drawer-search" action="{{ routes.search_url }}" method="get" role="search">
           <label for="MenuSearch-{{ section.id }}">{{ 'navigation.search_label' | t }}</label>
           <div class="search-form"><input id="MenuSearch-{{ section.id }}" type="search" name="q" placeholder="{{ 'navigation.search_placeholder' | t }}"><button class="btn" type="submit">{{ 'general.search' | t }}</button></div>
@@ -14,10 +14,10 @@
       </div>
     </details>
     <a class="wordmark" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">OUDIE</a>
-    <nav class="desktop-nav" aria-label="{{ 'navigation.primary' | t }}"><ul>{% render 'header-links', menu: section.settings.menu %}</ul></nav>
+    <nav class="desktop-nav" aria-label="{{ 'navigation.primary' | t }}"><ul>{% render 'header-links', menu: section.settings.menu, feature_product: section.settings.feature_product, feature_image: section.settings.feature_image, feature_heading: section.settings.feature_heading %}</ul></nav>
     <div class="header-actions"><a class="header-search" href="{{ routes.search_url }}">{{ 'general.search' | t }}</a><a data-cart-open class="cart-link" href="{{ routes.cart_url }}">{{ 'general.cart' | t }}<span class="bag-count" data-bag-count {% if cart.item_count == 0 %}hidden{% endif %}>({{ cart.item_count }})</span></a></div>
   </div>
 </header>
 {% schema %}
-{"name":"Header","settings":[{"type":"link_list","id":"menu","label":"Primary navigation","info":"Leave empty to use the verified OUDIE destinations."}]}
+{"name":"Header","settings":[{"type":"product","id":"feature_product","label":"Shop menu featured product"},{"type":"image_picker","id":"feature_image","label":"Shop menu feature image"},{"type":"text","id":"feature_heading","label":"Shop menu feature heading","default":"Start with a sample."},{"type":"link_list","id":"menu","label":"Primary navigation","info":"Leave empty to use the verified OUDIE destinations."}]}
 {% endschema %}

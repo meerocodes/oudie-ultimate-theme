@@ -18,7 +18,53 @@
       "bakhoor-incense-cones"
     ],
     "sample_product": "sample-pack-1-of-each-scent",
-    "shipping_progress_enabled": false
+    "shipping_progress_enabled": true,
+    "free_shipping_threshold_us": "162",
+    "sections": {
+      "popup-campaigns": {
+        "type": "popup-campaigns",
+        "settings": {
+          "suppress_legacy": true,
+          "one_per_session": true
+        },
+        "blocks": {
+          "signup": {
+            "type": "campaign",
+            "settings": {
+              "enabled": true,
+              "kind": "signup",
+              "heading": "Find your next OUDIE.",
+              "body": "Receive scent news, new releases and OUDIE experiences by email.",
+              "trigger": "delay",
+              "delay": 20,
+              "pageviews": 2,
+              "cooldown": 7,
+              "priority": 1,
+              "frequency": "session",
+              "timezone": "America/Toronto",
+              "revision": "1"
+            }
+          },
+          "promotion": {
+            "type": "campaign",
+            "settings": {
+              "enabled": false,
+              "kind": "promotion",
+              "heading": "Discover something personal.",
+              "body": "Explore the OUDIE scent collection.",
+              "cta_label": "Explore scents",
+              "cta_url": "shopify://pages/our-scents",
+              "priority": 2,
+              "revision": "1"
+            }
+          }
+        },
+        "block_order": [
+          "signup",
+          "promotion"
+        ]
+      }
+    }
   },
   "presets": {}
 }

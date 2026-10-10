@@ -9,7 +9,8 @@ This workspace is the continuation pack for rebuilding **oudie.ca** as a refined
 - `research/oudie-ca-seo-audit-scorecard.md` is the original SEO audit and should remain unchanged.
 - `docs/` contains the agreed product, design, data, SEO, CRO, and QA specifications.
 - `.codex/skills/` contains project-specific skills Codex should use while working.
-- `MASTER_PROMPT.md` is the recommended starting prompt for Codex.
+- `MASTER_PROMPT.md` is the recommended starting prompt for Codex; `CLAUDE.md` is Claude’s setup entry point.
+- `docs/20_GALLERY_CART_POPUP_BATCH.md` records the latest gallery, shipping, menu, publication and native popup upgrade.
 - `docs/18_SCENT_COMMERCE_BATCH.md` records the scent/format and cart-drawer upgrade, preview, and remaining launch gates.
 - `docs/17_GITHUB_HANDOFF.md` explains the repository layout, continuation workflow, and Shopify validation boundary.
 

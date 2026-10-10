@@ -1,5 +1,7 @@
-<section class="page-width cart-page">
+<section class="page-width cart-page" data-main-cart data-cart-section="{{ section.id }}">
+  <p class="cart-error" data-main-cart-error role="alert" hidden></p><div data-main-cart-content data-count="{{ cart.item_count }}">
   <div class="eyebrow">Your bag</div><h1 class="section-title">Cart</h1>
+  {% render 'country-selector', context: section.id %}
   {% if cart.item_count == 0 %}<div class="empty-state"><p>Your bag is empty.</p><a class="btn" href="{{ pages['our-scents'].url | default: routes.all_products_collection_url }}">Find your scent</a></div>{% else %}
     <form action="{{ routes.cart_url }}" method="post">
       {% render 'cart-lines', context: section.id %}
@@ -8,5 +10,6 @@
       {% if additional_checkout_buttons %}<div class="cart-accelerated">{{ content_for_additional_checkout_buttons }}</div>{% endif %}
     </form>
   {% endif %}
+  </div>
 </section>
 {% schema %}{"name":"Main cart","settings":[]}{% endschema %}

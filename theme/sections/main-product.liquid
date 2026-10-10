@@ -16,17 +16,21 @@
     <div class="product-gallery" data-gallery>
       <div class="product-primary-media" data-primary-media>
         {% if primary_image %}{{ primary_image | image_url: width: 1600 | image_tag: loading: 'eager', widths: '360,600,900,1200,1600', sizes: '(min-width: 990px) 50vw, 90vw', alt: primary_alt }}{% else %}<div class="card-placeholder">OUDIE</div>{% endif %}
+        {% if primary_image %}<button type="button" class="gallery-zoom" data-gallery-zoom aria-label="Enlarge product image" hidden>Enlarge ↗</button>{% endif %}
       </div>
       {% if product.media.size > 1 %}
         <div class="product-thumbnails" aria-label="Product images">
           {% for media in product.media %}
-            {% if media.media_type == 'image' %}
+            {% assign shared_media = true %}{% assign current_scent_media = false %}
+            {% for other in product.variants %}{% if other.featured_media.id == media.id %}{% assign shared_media = false %}{% assign other_scent = other.metafields.custom.scent.value | default: product.metafields.custom.scent.value %}{% if other_scent.system.id == scent.system.id or other.id == variant.id %}{% assign current_scent_media = true %}{% endif %}{% endif %}{% endfor %}
+            {% if media.media_type == 'image' and shared_media or media.media_type == 'image' and current_scent_media or media.media_type == 'image' and scent == blank %}
               {% assign media_alt = media.alt | default: product.title %}
-              <a href="{{ media | image_url: width: 1600 }}" data-gallery-image data-src="{{ media | image_url: width: 1600 }}" data-alt="{{ media.alt | default: product.title | escape }}" aria-label="View image {{ forloop.index }}">{{ media | image_url: width: 120 | image_tag: loading: 'lazy', alt: media_alt }}</a>
+              <a href="{{ media | image_url: width: 1600 }}" data-gallery-image {% if media.preview_image.id == primary_image.id %}aria-current="true"{% endif %} data-src="{{ media | image_url: width: 1600 }}" data-alt="{{ media.alt | default: product.title | escape }}" aria-label="View image {{ forloop.index }}">{{ media | image_url: width: 120 | image_tag: loading: 'lazy', alt: media_alt }}</a>
             {% endif %}
           {% endfor %}
         </div>
       {% endif %}
+      <dialog class="gallery-dialog" data-gallery-dialog aria-label="Product image viewer"><div class="gallery-dialog-controls"><button type="button" class="btn btn--ghost" data-gallery-previous aria-label="Previous image">←</button><span data-gallery-count aria-live="polite"></span><button type="button" class="btn btn--ghost" data-gallery-next aria-label="Next image">→</button><button type="button" class="btn btn--ghost" data-gallery-close aria-label="Close image viewer">Close</button></div><img data-gallery-full width="{{ primary_image.width | default: 1600 }}" height="{{ primary_image.height | default: 1600 }}" alt=""></dialog>
     </div>
     <div class="product-details">
       <div class="product-price" data-product-price>{{ variant.price | money }}</div>
@@ -55,7 +59,7 @@
         <button class="btn atc" type="submit" data-atc {% unless variant.available %}disabled{% endunless %}>{% if variant.available %}Add to bag{% else %}Sold out{% endif %}</button>
         {{ form | payment_button }}
       {% endform %}
-      <p class="purchase-shipping">{{ 'commerce.shipping_policy' | t: threshold: settings.free_shipping_threshold }}</p>
+      <p class="purchase-shipping">{% render 'shipping-policy' %}</p>
       {% if settings.sample_product != blank and product.id != settings.sample_product.id and scent != blank %}<a class="text-link sample-link" href="{{ settings.sample_product.url }}">Not sure yet? Explore samples →</a>{% endif %}
       {% if scent %}
         {% unless scent.system.handle == 'oudie-bella' %}
@@ -68,7 +72,7 @@
       {% elsif variant.metafields.custom.scent_notes.value != blank %}<div class="rte legacy-notes">{{ variant.metafields.custom.scent_notes.value | escape }}</div>{% endif %}
       <div class="accordion">
         <details><summary>About this product</summary><div class="rte">{{ product.description }}</div></details>
-        <details><summary>Shipping</summary><div class="rte"><p>{{ 'commerce.shipping_policy' | t: threshold: settings.free_shipping_threshold }}</p></div></details>
+        <details><summary>Shipping</summary><div class="rte"><p>{% render 'shipping-policy' %}</p></div></details>
       </div>
       {% for block in section.blocks %}{% if block.type == '@app' %}<div {{ block.shopify_attributes }}>{% render block %}</div>{% endif %}{% endfor %}
     </div>

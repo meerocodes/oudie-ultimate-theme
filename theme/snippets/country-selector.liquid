@@ -1,0 +1,5 @@
+{% doc %}
+Native Shopify shopping-country selection. Render outside other forms.
+@param {string} context
+{% enddoc %}
+{% if localization.available_countries.size > 1 %}{% assign country_form_id = 'CountryForm-' | append: context %}{% form 'localization', id: country_form_id, class: 'country-selector' %}<label for="Country-{{ context }}">Shopping / shipping country</label><div><select class="select" id="Country-{{ context }}" name="country_code">{% for country in localization.available_countries %}<option value="{{ country.iso_code }}"{% if country.iso_code == localization.country.iso_code %} selected{% endif %}>{{ country.name }} ({{ country.currency.iso_code }})</option>{% endfor %}</select><button type="submit" class="btn btn--ghost">Update country</button></div>{% endform %}{% endif %}

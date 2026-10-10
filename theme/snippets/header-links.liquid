@@ -1,9 +1,13 @@
 {% doc %}
   Renders configured navigation or verified OUDIE route defaults.
+  @param {product} [feature_product] - Mega menu feature.
+  @param {image} [feature_image] - Feature crop.
+  @param {string} [feature_heading] - Feature heading.
   @param {linklist} [menu] - Merchant navigation menu.
 {% enddoc %}
 {% if menu != blank %}
   {% for link in menu.links %}
+    {% unless link.url contains '/blogs/oud-guide' or link.url contains '/blogs/perfume-oud-oil-vs-extrait-de-parfum' %}
     <li>
       {% if link.links != blank %}
         <details class="nav-group"><summary>{{ link.title | escape }}</summary><ul>
@@ -16,18 +20,18 @@
         </ul></details>
       {% else %}<a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>{% endif %}
     </li>
+    {% endunless %}
   {% endfor %}
 {% else %}
   {% assign shop_collection = collections['all-oudie'] %}
-  <li><details class="nav-group"><summary>{{ 'navigation.shop' | t }}</summary><ul>
-    <li><a href="{{ shop_collection.url | default: routes.all_products_collection_url }}">Shop all</a></li>
-    {% assign category_handles = 'eau-de-parfume-50ml|oil-blends|oudie-premium|sprays|car-diffuser|elegant-car-freshners|bakhoor|samples' | split: '|' %}
-    {% assign category_labels = 'Perfume|Oil blends|Premium oils|Mists|Car diffusers|Car fresheners|Bakhoor|Samples' | split: '|' %}
-    {% for handle in category_handles %}{% assign category = collections[handle] %}{% if category != blank %}<li><a href="{{ category.url }}{% if handle == 'oudie-premium' %}?scent_format=Oil+Blends{% endif %}">{{ category_labels[forloop.index0] }}</a></li>{% endif %}{% endfor %}
-  </ul></details></li>
+  <li><details class="nav-group shop-mega"><summary>{{ 'navigation.shop' | t }}</summary><div class="mega-panel"><div class="mega-inner">
+    <div class="mega-column"><div class="eyebrow">Perfume & oils</div><ul>{% assign handles = 'eau-de-parfume-50ml|oil-blends|oudie-premium' | split: '|' %}{% assign labels = 'Perfume|Oil blends|Premium oils' | split: '|' %}{% for handle in handles %}{% assign category = collections[handle] %}{% if category != blank %}<li><a href="{{ category.url }}{% if handle == 'oudie-premium' %}?scent_format=Oil+Blends{% endif %}">{{ labels[forloop.index0] }}</a></li>{% endif %}{% endfor %}<li><a class="text-link" href="{{ shop_collection.url | default: routes.all_products_collection_url }}">Shop all OUDIE ↗</a></li></ul></div>
+    <div class="mega-column"><div class="eyebrow">Home & car</div><ul>{% assign handles = 'sprays|car-diffuser|elegant-car-freshners|bakhoor' | split: '|' %}{% assign labels = 'Mists|Car diffusers|Car fresheners|Bakhoor' | split: '|' %}{% for handle in handles %}{% assign category = collections[handle] %}{% if category != blank %}<li><a href="{{ category.url }}">{{ labels[forloop.index0] }}</a></li>{% endif %}{% endfor %}</ul></div>
+    <div class="mega-column"><div class="eyebrow">Discovery</div><ul>{% if pages['our-scents'] != blank %}<li><a href="{{ pages['our-scents'].url }}">Explore by scent</a></li>{% endif %}{% if collections['samples'] != blank %}<li><a href="{{ collections['samples'].url }}">Samples</a></li>{% endif %}</ul><p>Find a fragrance to make your own.</p></div>
+    {% assign feature = feature_product | default: settings.sample_product %}{% assign feature_image = feature_image | default: feature.featured_image %}{% if feature != blank %}<a class="mega-feature" href="{{ feature.url }}">{% if feature_image != blank %}{{ feature_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: feature.title }}{% endif %}<span>{{ feature_heading | default: 'Start with a sample.' | escape }} ↗</span></a>{% endif %}
+  </div></div></details></li>
   {% if pages['our-scents'] != blank %}<li><a href="{{ pages['our-scents'].url }}">{{ 'navigation.scents' | t }}</a></li>{% endif %}
   {% if all_products['sample-pack-1-of-each-scent'] != blank %}<li><a href="{{ all_products['sample-pack-1-of-each-scent'].url }}">{{ 'navigation.samples' | t }}</a></li>{% endif %}
   {% if pages['oudie-experiences'] != blank %}<li><a href="{{ pages['oudie-experiences'].url }}">{{ 'navigation.experiences' | t }}</a></li>{% endif %}
-  {% if blogs['oud-guide'].articles.size > 0 %}<li><a href="{{ blogs['oud-guide'].url }}">{{ 'navigation.guide' | t }}</a></li>{% elsif blogs['perfume-oud-oil-vs-extrait-de-parfum'] != blank %}<li><a href="{{ blogs['perfume-oud-oil-vs-extrait-de-parfum'].url }}">{{ 'navigation.guide' | t }}</a></li>{% endif %}
   {% if pages['our-mission'] != blank %}<li><a href="{{ pages['our-mission'].url }}">{{ 'navigation.story' | t }}</a></li>{% endif %}
 {% endif %}
